@@ -1,17 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Strategy, ExtractJwt } from 'passport-jwt';
+import { exceptionsFilter } from 'src/common/helpers/exceptions-helper';
 import { JwtPayload } from 'src/common/types/types';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from 'src/user/entities/user.entity';
-import { UserRepository } from 'src/user/user.repository';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    @InjectRepository(UserRepository)
-    private readonly userRepository: UserRepository,
-  ) {
+  constructor(private readonly prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreexpiration: false,
@@ -19,20 +16,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<User> {
-    const { email } = payload;
+  async validate(payload: JwtPayload) {
+    try {
+      const { email } = payload;
+      const user = await this.prisma.user.findUnique({ where: { email } });
 
-    const user = await this.userRepository.findOne({
-      where: { email },
-    });
+      if (!user)
+        throw {
+          name: 'Authentication',
+          message: 'Usuário não encontrado',
+        };
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      delete user.password;
+      return user;
+    } catch (error) {
+      exceptionsFilter(error);
     }
-
-    delete user.password;
-    delete user.salt;
-
-    return user;
   }
 }
