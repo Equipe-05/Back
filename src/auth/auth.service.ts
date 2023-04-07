@@ -1,33 +1,42 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserRepository } from 'src/user/user.repository';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { JwtPayload } from 'src/common/types/types';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    @InjectRepository(UserRepository)
-    private readonly userRepository: UserRepository,
+    private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
 
   async signUp(createUserDto: CreateUserDto) {
-    return this.userRepository.create(createUserDto);
+    const user = await this.userService.create(createUserDto);
+
+    const payload: JwtPayload = { email: user.email };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return { accessToken };
   }
 
   async signIn(authCredentialsDto: AuthCredentialsDto) {
-    const email = await this.userRepository.signIn(authCredentialsDto);
+    const email = await this.userService.signIn(authCredentialsDto);
+
+    if (!email) {
+      throw {
+        name: 'BadRequestError',
+        message: 'Invalid credentials',
+      };
+    }
+
     const payload: JwtPayload = { email };
     const accessToken = await this.jwtService.signAsync(payload);
-
-    this.logger.debug(
-      `Generated JWT Token with payload ${JSON.stringify(payload)}`,
-    );
 
     return { accessToken };
   }

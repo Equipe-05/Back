@@ -32,6 +32,17 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
+  @Matches(/^(ADMIN|USER)$/, {
+    message: 'Role must be either ADMIN or USER',
+  })
+  @ApiProperty({
+    description: 'The role of the user',
+    example: 'USER',
+  })
+  role: string;
+
+  @IsString()
+  @IsNotEmpty()
   @Matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
     {

@@ -7,18 +7,18 @@ import {
   HttpStatus,
   Logger,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { exceptionsFilter } from 'src/common/helpers/exceptions-helper';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('user')
 @Controller('user')
@@ -61,7 +61,7 @@ export class UserController {
     description:
       'Get a user by ID. The ID is passed as a parameter in the URL.',
   })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     try {
       return await this.userService.findOne(id);
     } catch (error) {
@@ -76,7 +76,7 @@ export class UserController {
       'Update a user by ID. The ID is passed as a parameter in the URL.',
   })
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe({ whitelist: true }))
     updateUserDto: UpdateUserDto,
   ) {
@@ -95,7 +95,7 @@ export class UserController {
     description:
       'Delete a user by ID. The ID is passed as a parameter in the URL.',
   })
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     try {
       this.logger.debug(`Removing user with id ${id}`);
       await this.userService.remove(id);

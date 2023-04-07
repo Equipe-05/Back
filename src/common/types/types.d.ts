@@ -3,6 +3,10 @@ export type Error = {
   message: string;
   code?: string;
   detail?: string;
+  meta?: {
+    target?: string;
+    cause?: string;
+  };
 };
 
 export type JwtPayload = {

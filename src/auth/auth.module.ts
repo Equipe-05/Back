@@ -3,11 +3,10 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
 import { JwtStrategy } from './jwt.strategy';
-import { UserRepository } from 'src/user/user.repository';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from 'src/user/user.module';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -17,10 +16,11 @@ import { ConfigModule } from '@nestjs/config';
       secret: String(process.env.JWT_SECRET),
       signOptions: { expiresIn: String(process.env.JWT_EXPIRES_IN) },
     }),
-    TypeOrmModule.forFeature([User]),
+    PrismaModule,
+    UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, UserRepository],
+  providers: [AuthService, JwtStrategy],
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}
