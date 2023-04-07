@@ -10,8 +10,8 @@ async function bootstrap() {
   const port = config.port;
 
   const configSwagger = new DocumentBuilder()
-    .setTitle('Hyperlocal Api')
-    .setDescription('Api para gerenciamento de franqueados e clientes')
+    .setTitle('Hyperlocal API')
+    .setDescription('API for franchisee and customer management')
     .setVersion('1.0')
     .addTag('auth')
     .addTag('user')
