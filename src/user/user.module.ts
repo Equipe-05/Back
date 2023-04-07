@@ -1,17 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UserService } from './user.service';
-import { UserController } from './user.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
-import { UserRepository } from './user.repository';
 import { PassportModule } from '@nestjs/passport';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-  ],
+  imports: [PrismaModule, PassportModule.register({ defaultStrategy: 'jwt' })],
   controllers: [UserController],
-  providers: [UserService, UserRepository],
+  exports: [UserService],
+  providers: [UserService],
 })
 export class UserModule {}
