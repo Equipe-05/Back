@@ -9,7 +9,7 @@ generator client {
 
 generator erd {
   provider = "prisma-erd-generator"
-  output   = "./ERD.pdf"
+  output   = "./ERD.png"
 }
 
 enum Role {
@@ -19,11 +19,13 @@ enum Role {
   MANAGER
 }
 
-enum Product {
-  CASH // aqui entrariam os 26 produtos que a hyperlocal vende aos franqueados
-  CREDIT
-  DEBIT
-  CHECK
+enum Plan {
+  AVEC
+  AVECGO
+  CROSSX
+  PAYMENTS
+  PLATAFORMA_HYPERLOCAL
+  SALAOVIP
 }
 
 model User {
@@ -59,6 +61,33 @@ model Franchise {
 
   @@map("franchise")
 }
+
+model Product {
+  id          String      @id @default(uuid())
+  name        String
+  description String
+  score       Int
+  plan        Plan
+  franchises  Franchise[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("product")
+}
+
+// model ProductsOnFranchise {
+//   product     Product?  @relation(fields: [productId], references: [id])
+//   productId   String
+//   franchise   Franchise @relation(fields: [franchiseId], references: [id])
+//   franchiseId String
+//   score       Int
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@id([productId, franchiseId])
+// }
 
 model Customer {
   id          String     @id @default(uuid())
