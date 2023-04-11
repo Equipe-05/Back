@@ -32,12 +32,13 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^(ADMIN|USER)$/, {
-    message: 'Role must be either ADMIN or USER',
+  @Matches(/^(EMPLOYEE|FRANCHISEE|OPERATOR|MANAGER)$/, {
+    message:
+      'Role must be a valid role. Valid roles: EMPLOYEE, FRANCHISEE, OPERATOR, MANAGER',
   })
   @ApiProperty({
     description: 'The role of the user',
-    example: 'USER',
+    example: 'FRANCHISEE',
   })
   role: string;
 
@@ -71,4 +72,42 @@ export class CreateUserDto {
     example: 'Abc@@123',
   })
   confirmPassword: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(11)
+  @MaxLength(11)
+  @ApiProperty({
+    description: 'The CPF of the user',
+    example: '12345678901',
+  })
+  cpf: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(255)
+  @ApiProperty({
+    description: 'The address of the user',
+    example: 'Rua dos Bobos, 0',
+  })
+  address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(20)
+  @Matches(
+    /^(?:(?:\+|00)?(55)\s?)?(?:\(?([1-9][0-9])\)?\s?)?(?:((?:9\d|[2-9])\d{3})\-?(\d{4}))$/,
+    {
+      message:
+        'Telefone inválido (Exemplos: +55 (11) 98888-8888 / 9888-8888 / 11 98888-8888 / 5511988888888)',
+    },
+  )
+  @ApiProperty({
+    description:
+      'Telefone usuário (Exemplos: +55 (11) 98888-8888 / 9888-8888 / 11 98888-8888 / 5511988888888)',
+    example: '11 98888-8888',
+  })
+  phone: string;
 }

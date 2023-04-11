@@ -3,5 +3,8 @@ export class User {
   name: string;
   email: string;
   password: string;
-  salt: string;
+  salt?: string;
+  cpf: string;
+  address: string;
+  phone: string;
 }

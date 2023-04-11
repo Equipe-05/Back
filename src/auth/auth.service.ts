@@ -18,10 +18,10 @@ export class AuthService {
 
   async signUp(createUserDto: CreateUserDto) {
     const user = await this.userService.create(createUserDto);
-
     const payload: JwtPayload = { email: user.email };
     const accessToken = await this.jwtService.signAsync(payload);
 
+    this.logger.log(`Generated JWT Token for email ${user.email}`);
     return { accessToken };
   }
 
@@ -38,6 +38,7 @@ export class AuthService {
     const payload: JwtPayload = { email };
     const accessToken = await this.jwtService.signAsync(payload);
 
+    this.logger.log(`Generated JWT Token for email ${email}`);
     return { accessToken };
   }
 }

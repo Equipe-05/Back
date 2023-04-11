@@ -22,6 +22,9 @@ export class UserService {
       email: createUserDto.email,
       password: await hash(createUserDto.password, salt),
       role: Role[createUserDto.role],
+      address: createUserDto.address,
+      cpf: createUserDto.cpf,
+      phone: createUserDto.phone,
     };
 
     return await this.prisma.user.create({
@@ -59,11 +62,22 @@ export class UserService {
     data.name = updateUserDto.name ?? user.name;
     data.email = updateUserDto.email ?? user.email;
     data.role = Role[updateUserDto.role] ?? Role[user.role];
+    data.address = updateUserDto.address ?? user.address;
+    data.cpf = updateUserDto.cpf ?? user.cpf;
+    data.phone = updateUserDto.phone ?? user.phone;
 
     return await this.prisma.user.update({
       where: { id },
       data,
-      select: { id: true, name: true, email: true, role: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        address: true,
+        cpf: true,
+        phone: true,
+      },
     });
   }
 
