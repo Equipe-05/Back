@@ -1,24 +1,98 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String  @id @default(uuid())
-  email    String  @unique
-  name     String?
-  password String
-  role     Role    @default(USER)
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "./ERD.pdf"
 }
 
 enum Role {
-  USER
-  ADMIN
+  EMPLOYEE
+  FRANCHISEE
+  OPERATOR
+  MANAGER
 }
+
+enum Product {
+  CASH // aqui entrariam os 26 produtos que a hyperlocal vende aos franqueados
+  CREDIT
+  DEBIT
+  CHECK
+}
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+  cpf      String @unique
+  address  String
+  phone    String
+  role     Role
+  sales    Sale[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user")
+}
+
+model Franchise {
+  id        String     @id @default(uuid())
+  name      String
+  address   String
+  cnpj      String     @unique
+  phone     String
+  customers Customer[]
+  sales     Sale[]
+  products  Product[]
+  score     Int        @default(0)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("franchise")
+}
+
+model Customer {
+  id          String     @id @default(uuid())
+  name        String
+  cnpj        String?    @unique // optional field, customer can be a person or a company
+  cpf         String?    @unique // optional field, customer can be a person or a company
+  address     String?
+  phone       String
+  franchise   Franchise? @relation(fields: [franchiseId], references: [id])
+  franchiseId String?
+  sales       Sale[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("customer")
+}
+
+model Sale {
+  id          String     @id @default(uuid())
+  product     String
+  quantity    Int
+  value       Float
+  customer    Customer?  @relation(fields: [customerId], references: [id])
+  customerId  String?
+  user        User?      @relation(fields: [userId], references: [id])
+  userId      String?
+  franchise   Franchise? @relation(fields: [franchiseId], references: [id])
+  franchiseId String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sale")
+}
+
+// TODO: add Ticket model to track the status support tickets
