@@ -7,6 +7,8 @@ import configuration from './common/config/configuration';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductModule } from './product/product.module';
+import { FranchiseModule } from './franchise/franchise.module';
+
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { ProductModule } from './product/product.module';
     UserModule,
     AuthModule,
     ProductModule,
+    FranchiseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
