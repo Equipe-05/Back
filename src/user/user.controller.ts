@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { exceptionsFilter } from 'src/common/helpers/exceptions-helper';
+import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -31,8 +31,8 @@ export class UserController {
 
   @Post()
   @ApiOperation({
-    summary: 'Create a new user',
-    description: 'Create a new User',
+    summary: 'Criar um novo usuário',
+    description: 'Criar um novo usuário',
   })
   async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
     try {
