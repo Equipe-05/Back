@@ -10,7 +10,7 @@ export class GetProductsFilterDto {
     enum: Object.values(Plan),
     required: false,
   })
-  plan?: Plan;
+  readonly plan?: Plan;
 
   @IsOptional()
   @IsNotEmpty()
@@ -18,5 +18,5 @@ export class GetProductsFilterDto {
     description: 'Filtra produtos por nome ou descrição',
     required: false,
   })
-  search?: string;
+  readonly search?: string;
 }
