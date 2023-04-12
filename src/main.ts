@@ -9,6 +9,8 @@ async function bootstrap() {
   const logger = new Logger('bootstrap');
   const port = config.port;
 
+  app.enableCors();
+
   const configSwagger = new DocumentBuilder()
     .setTitle('Hyperlocal API')
     .setDescription('API for franchisee and customer management')
