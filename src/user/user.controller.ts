@@ -14,7 +14,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -44,8 +49,8 @@ export class UserController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all users',
-    description: 'Get all users',
+    summary: 'Listar todos os usuários',
+    description: 'Listar todos os usuários',
   })
   async findAll() {
     try {
@@ -57,9 +62,9 @@ export class UserController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get a user by ID',
+    summary: 'Listar um usuário por ID',
     description:
-      'Get a user by ID. The ID is passed as a parameter in the URL.',
+      'Listar um usuário por ID. O ID é passado como um parâmetro na URL.',
   })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     try {
@@ -71,9 +76,9 @@ export class UserController {
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Update a user by ID',
+    summary: 'Atualizar um usuário por ID',
     description:
-      'Update a user by ID. The ID is passed as a parameter in the URL.',
+      'Atualizar um usuário por ID. O ID é passado como um parâmetro na URL.',
   })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -90,14 +95,22 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiResponse({
+    status: 204,
+    description: 'Produto deletado com sucesso',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Produto não encontrado',
+  })
   @ApiOperation({
-    summary: 'Delete a user by ID',
+    summary: 'Deleta um usuário por ID',
     description:
-      'Delete a user by ID. The ID is passed as a parameter in the URL.',
+      'Deleta um usuário por ID. O ID é passado como um parâmetro na URL.',
   })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     try {
-      this.logger.debug(`Removing user with id ${id}`);
+      this.logger.verbose(`Removing user with id ${id}`);
       await this.userService.remove(id);
     } catch (error) {
       exceptionsFilter(error);
