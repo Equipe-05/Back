@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { Plan, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Plan, Prisma } from '@prisma/client';
+import { GetProductsFilterDto } from './dto/get-products-filter.dto';
 
 @Injectable()
 export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async createProduct(createProductDto: CreateProductDto) {
     const { name, description, score, plan } = createProductDto;
 
     const data: Prisma.ProductCreateInput = {
@@ -23,19 +24,49 @@ export class ProductService {
     });
   }
 
-  async findAll() {
-    return `This action returns all product`;
+  async getProducts(filterDto: GetProductsFilterDto) {
+    const { plan, search } = filterDto;
+    const where: Prisma.ProductWhereInput = {};
+
+    if (plan) {
+      where.plan = Plan[plan];
+    }
+
+    if (search) {
+      where.OR = [
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          description: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
+    return this.prisma.product.findMany({
+      where,
+    });
   }
 
-  async findOne(id: string) {
+  async getProductById(id: string) {
     return `This action returns a #${id} product`;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async updateProduct(id: string, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
   }
 
-  async remove(id: string) {
+  async updateProductPlan(id: string, updateProductDto: UpdateProductDto) {
+    return `This action updates a #${id} product`;
+  }
+
+  async deleteProduct(id: string) {
     return `This action removes a #${id} product`;
   }
 }
