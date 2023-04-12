@@ -3,29 +3,36 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
   Query,
   UseGuards,
+  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiQuery,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role, User } from '@prisma/client';
+import { Plan, Role, User } from '@prisma/client';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { ProductPlanValidationPipe } from 'src/common/decorators/validation/product-plan-validation.pipe';
 import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
 import { isRole } from 'src/common/helpers/role-check.helper';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { ProductService } from './product.service';
 import { GetProductsFilterDto } from './dto/get-products-filter.dto';
+import { UpdateProductPlanDto } from './dto/update-product-plan.dto';
+import { ProductService } from './product.service';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @UseGuards(AuthGuard())
 @ApiBearerAuth()
@@ -83,20 +90,88 @@ export class ProductController {
   }
 
   @Get(':id')
-  async getProductById(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.productService.getProductById(id);
+  @ApiOperation({
+    summary: 'Buscar um Produto específico pelo seu ID',
+    description:
+      'Buscar um Produto específico pelo seu ID. O ID do Produto é gerado automaticamente pelo sistema',
+  })
+  async getProductById(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser() user: User,
+  ) {
+    try {
+      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+
+      return await this.productService.getProductById(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
+
+  @Patch(':id/plan')
+  @ApiOperation({
+    summary: 'Atualizar o plano de um Produto específico pelo seu ID',
+    description:
+      'Atualizar o plano de um Produto específico pelo seu ID. O ID do Produto é gerado automaticamente pelo sistema',
+  })
+  @ApiBody({
+    type: UpdateProductPlanDto,
+    enum: Object.values(Plan),
+    required: true,
+  })
+  async updateProductPlan(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('plan', ProductPlanValidationPipe) plan: Plan,
+  ) {
+    try {
+      return await this.productService.updateProductPlan(id, plan);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 
   @Patch(':id')
-  async updateProductPlan(
+  @ApiOperation({
+    summary: 'Atualizar um Produto específico pelo seu ID',
+    description:
+      'Atualizar um Produto específico pelo seu ID. O ID do Produto é gerado automaticamente pelo sistema',
+  })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async updateProduct(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    return await this.productService.updateProductPlan(id, updateProductDto);
+    try {
+      return await this.productService.updateProduct(id, updateProductDto);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 
   @Delete(':id')
-  async deleteProduct(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.productService.deleteProduct(id);
+  @ApiOperation({
+    summary: 'Deletar um Produto específico pelo seu ID',
+    description:
+      'Deletar um Produto específico pelo seu ID. O ID do Produto é gerado automaticamente pelo sistema',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Produto deletado com sucesso',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Produto não encontrado',
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteProduct(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser() user: User,
+  ) {
+    try {
+      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      await this.productService.deleteProduct(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 }
