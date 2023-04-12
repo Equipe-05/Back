@@ -24,6 +24,8 @@ import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -80,14 +82,52 @@ export class UserController {
     description:
       'Atualizar um usuário por ID. O ID é passado como um parâmetro na URL.',
   })
-  async update(
+  async updateUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe({ whitelist: true }))
-    updateUserDto: UpdateUserDto,
+    payload: UpdateUserDto,
   ) {
     try {
-      this.logger.debug(`Updating user with id ${id}`);
-      return await this.userService.update(id, updateUserDto);
+      this.logger.verbose(`Updating user: id ${id}`);
+      return await this.userService.updateUser(id, payload);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
+
+  @Patch(':id/role')
+  @ApiOperation({
+    summary: 'Atualizar a Role de um usuário por ID',
+    description:
+      'Atualizar a Role de um usuário por ID. O ID é passado como um parâmetro na URL.',
+  })
+  async updateUserRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe({ whitelist: true }))
+    payload: UpdateUserRoleDto,
+  ) {
+    try {
+      this.logger.verbose(`Updating user role: id ${id}`);
+      return await this.userService.updateUserRole(id, payload);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
+
+  @Patch(':id/password')
+  @ApiOperation({
+    summary: 'Atualizar a senha de um usuário por ID',
+    description:
+      'Atualizar a senha de um usuário por ID. O ID é passado como um parâmetro na URL.',
+  })
+  async updateUserPassword(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe({ whitelist: true }))
+    payload: UpdateUserPasswordDto,
+  ) {
+    try {
+      this.logger.verbose(`Updating user Password: id ${id}`);
+      return await this.userService.updateUserPassword(id, payload);
     } catch (error) {
       exceptionsFilter(error);
     }
