@@ -20,9 +20,7 @@ export class ProductService {
       plan: Plan[plan],
     };
 
-    return this.prisma.product.create({
-      data,
-    });
+    return this.prisma.product.create({ data });
   }
 
   async getProducts(filterDto: GetProductsFilterDto) {
@@ -50,9 +48,7 @@ export class ProductService {
       ];
     }
 
-    return this.prisma.product.findMany({
-      where,
-    });
+    return this.prisma.product.findMany({ where });
   }
 
   async getProductById(id: string) {
@@ -62,6 +58,7 @@ export class ProductService {
   async updateProduct(id: string, updateProductDto: UpdateProductDto) {
     const product = await this.findOneById(id);
     const { name, description, score } = updateProductDto;
+    const where = { id };
 
     const data: Prisma.ProductUpdateInput = {
       name: name ?? product.name,
@@ -69,35 +66,26 @@ export class ProductService {
       score: score ?? product.score,
     };
 
-    return this.prisma.product.update({
-      where: { id },
-      data,
-    });
+    return this.prisma.product.update({ where, data });
   }
 
   async updateProductPlan(id: string, plan: Plan) {
     await this.findOneById(id);
-    const data: Prisma.ProductUpdateInput = {
-      plan,
-    };
+    const where = { id };
+    const data: Prisma.ProductUpdateInput = { plan };
 
-    return this.prisma.product.update({
-      where: { id },
-      data,
-    });
+    return this.prisma.product.update({ where, data });
   }
 
   async deleteProduct(id: string) {
+    const where = { id };
     await this.findOneById(id);
-    await this.prisma.product.delete({
-      where: { id },
-    });
+    await this.prisma.product.delete({ where });
   }
 
   private async findOneById(id: string) {
-    const product = await this.prisma.product.findUnique({
-      where: { id },
-    });
+    const where = { id };
+    const product = await this.prisma.product.findUnique({ where });
 
     if (!product)
       throw {
