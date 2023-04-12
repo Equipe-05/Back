@@ -5,6 +5,18 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthCredentialsDto } from 'src/auth/dto/auth-credentials.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+
+const select = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  address: true,
+  cpf: true,
+  phone: true,
+};
 
 @Injectable()
 export class UserService {
@@ -27,16 +39,11 @@ export class UserService {
       phone: createUserDto.phone,
     };
 
-    return await this.prisma.user.create({
-      data,
-      select: { id: true, name: true, email: true, role: true },
-    });
+    return await this.prisma.user.create({ data, select });
   }
 
   async findAll() {
-    return await this.prisma.user.findMany({
-      select: { id: true, name: true, email: true, role: true },
-    });
+    return await this.prisma.user.findMany({ select });
   }
 
   async findOne(id: string) {
@@ -46,44 +53,50 @@ export class UserService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOneById(id);
+    const where = { id };
     const data: Prisma.UserUpdateInput = {};
-
-    if (updateUserDto.password) {
-      await this.compareConfirmPassword(
-        updateUserDto.password,
-        updateUserDto.confirmPassword,
-      );
-      const salt = await genSalt();
-      data.password = await hash(updateUserDto.password, salt);
-    }
 
     data.name = updateUserDto.name ?? user.name;
     data.email = updateUserDto.email ?? user.email;
-    data.role = Role[updateUserDto.role] ?? Role[user.role];
     data.address = updateUserDto.address ?? user.address;
     data.cpf = updateUserDto.cpf ?? user.cpf;
     data.phone = updateUserDto.phone ?? user.phone;
 
-    return await this.prisma.user.update({
-      where: { id },
-      data,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        address: true,
-        cpf: true,
-        phone: true,
-      },
-    });
+    return this.prisma.user.update({ where, data, select });
+  }
+
+  async updateUserRole(id: string, payload: UpdateUserRoleDto) {
+    await this.findOneById(id);
+    const where = { id };
+    const data: Prisma.UserUpdateInput = {
+      role: Role[payload.role],
+    };
+
+    return this.prisma.user.update({ where, data, select });
+  }
+
+  async updateUserPassword(id: string, payload: UpdateUserPasswordDto) {
+    const _user = await this.findOneById(id);
+    const where = { id };
+    const data: Prisma.UserUpdateInput = {};
+
+    await this.compareConfirmPassword(
+      payload.password,
+      payload.confirmPassword,
+    );
+    await this.comparePassword(payload.currentPassword, _user.password);
+    const _salt = await genSalt();
+    data.password = await hash(payload.password, _salt);
+
+    return this.prisma.user.update({ where, data, select });
   }
 
   async remove(id: string) {
+    const where = { id };
     await this.findOneById(id);
-    await this.prisma.user.delete({ where: { id } });
+    await this.prisma.user.delete({ where });
   }
 
   async signIn(authCredentialsDto: AuthCredentialsDto) {

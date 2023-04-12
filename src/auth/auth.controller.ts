@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { exceptionsFilter } from 'src/common/helpers/exceptions-helper';
+import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
@@ -22,9 +22,9 @@ export class AuthController {
 
   @Post('/signup')
   @ApiOperation({
-    summary: 'Sign up a new user',
+    summary: 'Inscrever-se com nome de usuário e senha',
     description:
-      'Sign up a new user with username and password credentials. Username must be lowercase. Password must be at least 8 characters long, and contain at least one lowercase letter, one uppercase letter, one number, and one symbol.',
+      'Inscreva-se com credenciais de nome de usuário e senha. O nome de usuário deve estar em minúsculas. A senha deve ter pelo menos 8 caracteres, e conter pelo menos uma letra minúscula, uma letra maiúscula, um número e um símbolo.',
   })
   async signUp(@Body(ValidationPipe) createUserDto: CreateUserDto) {
     try {
@@ -36,9 +36,9 @@ export class AuthController {
 
   @Post('/signin')
   @ApiOperation({
-    summary: 'Sign in with username and password',
+    summary: 'Fazer login com nome de usuário e senha',
     description:
-      'Login with username and password credentials. Username must be lowercase. Password must be at least 8 characters long, and contain at least one lowercase letter, one uppercase letter, one number, and one symbol.',
+      'Faça login com credenciais de nome de usuário e senha. O nome de usuário deve estar em minúsculas. A senha deve ter pelo menos 8 caracteres, e conter pelo menos uma letra minúscula, uma letra maiúscula, um número e um símbolo.',
   })
   async signIn(@Body(ValidationPipe) createAuthDto: AuthCredentialsDto) {
     try {
@@ -52,8 +52,8 @@ export class AuthController {
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Returns authenticated user',
-    description: 'Check if logged, return authenticated user',
+    summary: 'Retorna usuário autenticado',
+    description: 'Caso o usuário esteja autenticado, retorna o usuário.',
   })
   async signed(@GetUser() user: User) {
     return user;
