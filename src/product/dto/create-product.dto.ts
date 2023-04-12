@@ -2,9 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Plan } from '@prisma/client';
 import {
   IsIn,
+  IsInt,
   IsNotEmpty,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 
@@ -48,7 +51,18 @@ export class CreateProductDto {
       Plan.PLATAFORMA_HYPERLOCAL,
       Plan.SALAOVIP,
     ],
+    example: Plan.PLATAFORMA_HYPERLOCAL,
     required: true,
   })
   plan: Plan;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  @Max(30)
+  @ApiProperty({
+    description: 'O score do produto (1 a 30)',
+    example: 4,
+  })
+  score: number;
 }
