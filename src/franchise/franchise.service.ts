@@ -29,11 +29,11 @@ export class FranchiseService {
     return franchise;
   }
 
-  update(id: number, updateFranchiseDto: UpdateFranchiseDto) {
+  update(id: string, updateFranchiseDto: UpdateFranchiseDto) {
     return `This action updates a #${id} franchise`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} franchise`;
   }
 
