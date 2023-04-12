@@ -7,5 +7,5 @@ export class Product {
   description: string;
   score: number;
   plan: Plan;
-  franchises: Franchise[];
+  franchises?: Franchise[];
 }

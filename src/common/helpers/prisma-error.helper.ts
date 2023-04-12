@@ -7,7 +7,8 @@ export function prismaExceptionHelper(error: Error) {
       'P2002',
       {
         name: 'UnprocessableEntityError',
-        message: error?.meta?.target ?? 'Data already exists.',
+        message:
+          error?.message ?? error?.meta?.target ?? 'Data already exists.',
       },
     ],
     [
@@ -21,14 +22,15 @@ export function prismaExceptionHelper(error: Error) {
       'P2014',
       {
         name: 'UnprocessableEntityError',
-        message: error?.meta?.cause ?? 'Unique constraint failed.',
+        message:
+          error?.message ?? error?.meta?.cause ?? 'Unique constraint failed.',
       },
     ],
     [
       'default',
       {
         name: 'default',
-        message: error?.meta?.cause ?? error?.message ?? 'Bad Request',
+        message: error?.message ?? error?.meta?.cause ?? 'Bad Request',
       },
     ],
   ]);

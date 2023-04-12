@@ -17,7 +17,7 @@ export class CreateUserDto {
     description: 'The name of the user',
     example: 'John Doe',
   })
-  name: string;
+  readonly name: string;
 
   @IsEmail()
   @IsNotEmpty()
@@ -28,7 +28,7 @@ export class CreateUserDto {
     description: 'The email of the user',
     example: 'my@email.com',
   })
-  email: string;
+  readonly email: string;
 
   @IsString()
   @IsNotEmpty()
@@ -40,7 +40,7 @@ export class CreateUserDto {
     description: 'The role of the user',
     example: 'FRANCHISEE',
   })
-  role: string;
+  readonly role: string;
 
   @IsString()
   @IsNotEmpty()
@@ -56,7 +56,7 @@ export class CreateUserDto {
       'The password of the user. Must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number and one special character',
     example: 'Abc@@123',
   })
-  password: string;
+  readonly password: string;
 
   @IsString()
   @IsNotEmpty()
@@ -71,7 +71,7 @@ export class CreateUserDto {
     description: 'Confirm the user password for validation.',
     example: 'Abc@@123',
   })
-  confirmPassword: string;
+  readonly confirmPassword: string;
 
   @IsString()
   @IsNotEmpty()
@@ -81,7 +81,7 @@ export class CreateUserDto {
     description: 'The CPF of the user',
     example: '12345678901',
   })
-  cpf: string;
+  readonly cpf: string;
 
   @IsString()
   @IsNotEmpty()
@@ -91,7 +91,7 @@ export class CreateUserDto {
     description: 'The address of the user',
     example: 'Rua dos Bobos, 0',
   })
-  address: string;
+  readonly address: string;
 
   @IsString()
   @IsNotEmpty()
@@ -109,5 +109,5 @@ export class CreateUserDto {
       'Telefone usuário (Exemplos: +55 (11) 98888-8888 / 9888-8888 / 11 98888-8888 / 5511988888888)',
     example: '11 98888-8888',
   })
-  phone: string;
+  readonly phone: string;
 }
