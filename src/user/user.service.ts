@@ -7,6 +7,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthCredentialsDto } from 'src/auth/dto/auth-credentials.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { GetUserFilterDto } from './dto/get-users-filter.dto';
 
 const select = {
   id: true,
@@ -16,13 +17,15 @@ const select = {
   address: true,
   cpf: true,
   phone: true,
+  createdAt: true,
+  deletedAt: true,
 };
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto) {
     await this.compareConfirmPassword(
       createUserDto.password,
       createUserDto.confirmPassword,
@@ -42,8 +45,38 @@ export class UserService {
     return await this.prisma.user.create({ data, select });
   }
 
-  async findAll() {
-    return await this.prisma.user.findMany({ select });
+  async getUsers(payload: GetUserFilterDto) {
+    const { role, search, deleted } = payload;
+    const where: Prisma.UserWhereInput = {};
+
+    if (role) {
+      where.role = Role[role];
+    }
+
+    if (search) {
+      where.OR = [
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          email: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
+    if (deleted) {
+      deleted === 'TRUE'
+        ? (where.deletedAt = { not: null })
+        : (where.deletedAt = null);
+    }
+
+    return await this.prisma.user.findMany({ where, select });
   }
 
   async findOne(id: string) {

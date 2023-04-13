@@ -1,21 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Plan } from '@prisma/client';
-import { IsOptional, IsIn, IsNotEmpty } from 'class-validator';
+import { Role } from '@prisma/client';
+import { IsIn, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class GetProductsFilterDto {
+export class GetUserFilterDto {
   @IsOptional()
-  @IsIn(Object.values(Plan))
+  @IsIn(Object.values(Role))
   @ApiProperty({
-    description: 'O plano do produto',
-    enum: Object.values(Plan),
+    description: 'A Role do usuário',
+    enum: Object.values(Role),
     required: false,
   })
-  readonly plan?: Plan;
+  readonly role?: Role;
 
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Filtra produtos por nome ou descrição',
+    description: 'Filtra usuários por nome ou email',
     required: false,
   })
   readonly search?: string;

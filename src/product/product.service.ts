@@ -5,6 +5,15 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsFilterDto } from './dto/get-products-filter.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
+const select = {
+  id: true,
+  name: true,
+  description: true,
+  score: true,
+  plan: true,
+  createdAt: true,
+  deletedAt: true,
+};
 @Injectable()
 export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
@@ -19,11 +28,11 @@ export class ProductService {
       plan: Plan[plan],
     };
 
-    return this.prisma.product.create({ data });
+    return this.prisma.product.create({ data, select });
   }
 
   async getProducts(filterDto: GetProductsFilterDto) {
-    const { plan, search } = filterDto;
+    const { plan, search, deleted } = filterDto;
     const where: Prisma.ProductWhereInput = {};
 
     if (plan) {
@@ -47,7 +56,13 @@ export class ProductService {
       ];
     }
 
-    return this.prisma.product.findMany({ where });
+    if (deleted) {
+      deleted === 'TRUE'
+        ? (where.deletedAt = { not: null })
+        : (where.deletedAt = null);
+    }
+
+    return this.prisma.product.findMany({ where, select });
   }
 
   async getProductById(id: string) {
