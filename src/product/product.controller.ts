@@ -27,7 +27,7 @@ import { Plan, Role, User } from '@prisma/client';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { ProductPlanValidationPipe } from 'src/common/decorators/validation/product-plan-validation.pipe';
 import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
-import { isRole } from 'src/common/helpers/role-check.helper';
+import { isRoleCheck } from 'src/common/helpers/role-check.helper';
 import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsFilterDto } from './dto/get-products-filter.dto';
 import { UpdateProductPlanDto } from './dto/update-product-plan.dto';
@@ -52,7 +52,7 @@ export class ProductController {
     @GetUser() user: User,
   ) {
     try {
-      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
 
       return await this.productService.createProduct(createProductDto);
     } catch (error) {
@@ -81,7 +81,7 @@ export class ProductController {
     @GetUser() user: User,
   ) {
     try {
-      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
 
       return await this.productService.getProducts(filterDto);
     } catch (error) {
@@ -100,7 +100,7 @@ export class ProductController {
     @GetUser() user: User,
   ) {
     try {
-      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
 
       return await this.productService.getProductById(id);
     } catch (error) {
@@ -168,7 +168,7 @@ export class ProductController {
     @GetUser() user: User,
   ) {
     try {
-      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
       await this.productService.deleteProduct(id);
     } catch (error) {
       exceptionsFilter(error);
