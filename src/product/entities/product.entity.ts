@@ -7,5 +7,6 @@ export class Product {
   description: string;
   score: number;
   plan: Plan;
-  franchises?: Franchise[];
+  customers?: Franchise[];
+  sales?: string[]; // ! Sales is not implemented yet
 }

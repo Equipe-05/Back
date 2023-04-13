@@ -1,7 +1,8 @@
 import { Role } from '@prisma/client';
+import { Franchise } from 'src/franchise/entities/franchise.entity';
 
 export class User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   password: string;
@@ -10,4 +11,5 @@ export class User {
   address: string;
   phone: string;
   role: Role;
+  franchise?: Franchise;
 }

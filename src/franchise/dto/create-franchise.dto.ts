@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
-  Length,
   Matches,
   MaxLength,
   MinLength,
@@ -15,7 +14,7 @@ export class CreateFranchiseDto {
   @MaxLength(50)
   @ApiProperty({
     description: 'O nome da franquia',
-    example: 'John Doe',
+    example: 'Franquia do João da Silva S/A',
   })
   readonly name: string;
 
