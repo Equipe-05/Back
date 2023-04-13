@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async signUp(createUserDto: CreateUserDto) {
-    const user = await this.userService.create(createUserDto);
+    const user = await this.userService.createUser(createUserDto);
     const payload: JwtPayload = { email: user.email };
     const accessToken = await this.jwtService.signAsync(payload);
 
