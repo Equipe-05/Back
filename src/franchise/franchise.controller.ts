@@ -45,13 +45,31 @@ export class FranchiseController {
   }
 
   @Get()
-  findAll() {
-    return this.franchiseService.findAll();
+  @ApiOperation({
+    summary: 'Listar todas as franquias',
+    description: 'Listar todas as franquias da rede de franquias',
+  })
+  async findAll(@GetUser() user: User) {
+    try {
+      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      return await this.franchiseService.findAll();
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.franchiseService.findOne(id);
+  @ApiOperation({
+    summary: 'Listar uma franquia',
+    description: 'Listar uma franquia da rede de franquias',
+  })
+  async findOne(@Param('id') id: string, @GetUser() user: User) {
+    try {
+      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      return this.franchiseService.findOne(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 
   @Patch(':id')
