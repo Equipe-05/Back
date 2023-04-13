@@ -56,7 +56,9 @@ export class FranchiseService {
     });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} franchise`;
+  async remove(id: string) {
+    return await this.prisma.franchise.delete({
+      where: { id },
+    });
   }
 }

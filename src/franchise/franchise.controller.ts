@@ -91,7 +91,16 @@ export class FranchiseController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.franchiseService.remove(id);
+  @ApiOperation({
+    summary: 'Remover uma franquia',
+    description: 'Remover uma franquia da rede de franquias',
+  })
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    try {
+      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      return this.franchiseService.remove(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 }
