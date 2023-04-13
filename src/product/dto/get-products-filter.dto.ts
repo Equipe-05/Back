@@ -19,4 +19,14 @@ export class GetProductsFilterDto {
     required: false,
   })
   readonly search?: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsIn(['TRUE', 'FALSE'])
+  @ApiProperty({
+    description: 'Filtrar por produtos deletados ou não deletados',
+    enum: ['TRUE', 'FALSE'],
+    required: false,
+  })
+  readonly deleted?: string;
 }
