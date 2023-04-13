@@ -37,6 +37,9 @@ export class FranchiseService {
     const franchise = await this.findOneById(id);
     return franchise;
   }
+  findOneById(id: string) {
+    throw new Error('Method not implemented.');
+  }
 
   async update(id: string, updateFranchiseDto: UpdateFranchiseDto) {
     const { name, address, cnpj, phone, score } = updateFranchiseDto;
@@ -55,19 +58,5 @@ export class FranchiseService {
 
   remove(id: string) {
     return `This action removes a #${id} franchise`;
-  }
-
-  private async findOneById(id: string) {
-    const franchise = await this.prisma.franchise.findUnique({
-      where: { id },
-    });
-
-    if (!franchise)
-      throw {
-        name: 'NotFoundError',
-        message: `Franchise with id ${id} not found`,
-      };
-
-    return franchise;
   }
 }
