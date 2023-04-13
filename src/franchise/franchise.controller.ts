@@ -10,6 +10,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   UsePipes,
+  Query,
 } from '@nestjs/common';
 import { FranchiseService } from './franchise.service';
 import { CreateFranchiseDto } from './dto/create-franchise.dto';
@@ -22,6 +23,7 @@ import { isRole, isRoleCheck } from 'src/common/helpers/role-check.helper';
 import { Role } from '@prisma/client';
 import { User } from 'src/user/entities/user.entity';
 import { UpdateFranchiseUserDto } from './dto/update-franchise-user.dto';
+import { GetFranchiseFilterDto } from './dto/get-franchises-filter.dto';
 
 @Controller('franchise')
 @ApiTags('franchise')
@@ -39,7 +41,7 @@ export class FranchiseController {
   async create(@Body() payload: CreateFranchiseDto, @GetUser() user: User) {
     try {
       isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
-      return await this.franchiseService.create(payload);
+      return await this.franchiseService.createFranchise(payload);
     } catch (error) {
       exceptionsFilter(error);
     }
@@ -50,10 +52,14 @@ export class FranchiseController {
     summary: 'Listar todas as franquias',
     description: 'Listar todas as franquias da rede de franquias',
   })
-  async findAll(@GetUser() user: User) {
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async findAll(
+    @Query() payload: GetFranchiseFilterDto,
+    @GetUser() user: User,
+  ) {
     try {
       if (isRole(user.role, Role.OPERATOR, Role.MANAGER)) {
-        return await this.franchiseService.getAllFranchises();
+        return await this.franchiseService.getAllFranchises(payload);
       }
       return await this.franchiseService.getMyFranchise(user.id);
     } catch (error) {
@@ -69,7 +75,7 @@ export class FranchiseController {
   async findOne(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     try {
       isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
-      return this.franchiseService.findOne(id);
+      return await this.franchiseService.getFranchiseById(id);
     } catch (error) {
       exceptionsFilter(error);
     }
