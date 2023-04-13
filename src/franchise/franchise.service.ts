@@ -128,7 +128,6 @@ export class FranchiseService {
   }
 
   private async getUserRoleById(id: string): Promise<Role> {
-    console.log('id', id);
     const _user = await this.prisma.user.findUnique({
       where: { id },
       select: {

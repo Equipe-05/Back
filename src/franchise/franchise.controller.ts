@@ -57,7 +57,6 @@ export class FranchiseController {
       }
       return await this.franchiseService.getMyFranchise(user.id);
     } catch (error) {
-      console.log(error);
       exceptionsFilter(error);
     }
   }
@@ -109,10 +108,8 @@ export class FranchiseController {
   ) {
     try {
       isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
-      console.table(payload);
       return await this.franchiseService.setFranchiseOwner(id, payload);
     } catch (error) {
-      console.log(error);
       exceptionsFilter(error);
     }
   }
