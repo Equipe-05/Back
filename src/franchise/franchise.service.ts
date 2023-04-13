@@ -38,8 +38,19 @@ export class FranchiseService {
     return franchise;
   }
 
-  update(id: string, updateFranchiseDto: UpdateFranchiseDto) {
-    return `This action updates a #${id} franchise`;
+  async update(id: string, updateFranchiseDto: UpdateFranchiseDto) {
+    const { name, address, cnpj, phone, score } = updateFranchiseDto;
+    const data: Prisma.FranchiseUpdateInput = {
+      name,
+      address,
+      cnpj,
+      phone,
+      score,
+    };
+    return await this.prisma.franchise.update({
+      where: { id },
+      data,
+    });
   }
 
   remove(id: string) {

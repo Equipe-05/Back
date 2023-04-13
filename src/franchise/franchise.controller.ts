@@ -73,11 +73,21 @@ export class FranchiseController {
   }
 
   @Patch(':id')
-  update(
+  @ApiOperation({
+    summary: 'Atualizar uma franquia',
+    description: 'Atualizar uma franquia da rede de franquias',
+  })
+  async update(
     @Param('id') id: string,
     @Body() updateFranchiseDto: UpdateFranchiseDto,
+    @GetUser() user: User,
   ) {
-    return this.franchiseService.update(id, updateFranchiseDto);
+    try {
+      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      return await this.franchiseService.update(id, updateFranchiseDto);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 
   @Delete(':id')
