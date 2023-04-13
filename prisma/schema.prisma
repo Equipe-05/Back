@@ -39,8 +39,11 @@ model User {
   role     Role
   sales    Sale[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  franchise Franchise?
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   @@map("user")
 }
@@ -53,25 +56,29 @@ model Franchise {
   phone     String
   customers Customer[]
   sales     Sale[]
-  products  Product[]
   score     Int        @default(0)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?    @unique
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   @@map("franchise")
 }
 
 model Product {
-  id          String      @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
   description String
   score       Int
   plan        Plan
-  franchises  Franchise[]
+  customers   Customer[]
+  sales       Sale[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   @@map("product")
 }
@@ -79,26 +86,26 @@ model Product {
 model Customer {
   id          String     @id @default(uuid())
   name        String
-  cnpj        String?    @unique // optional field, customer can be a person or a company
-  cpf         String?    @unique // optional field, customer can be a person or a company
+  cnpj        String?    @unique
   address     String
   phone       String
-  franchise   Franchise? @relation(fields: [franchiseId], references: [id])
+  franchise   Franchise? @relation(fields: [franchiseId], references: [id], onDelete: Cascade)
   franchiseId String?
   sales       Sale[]
+  products    Product[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   @@map("customer")
 }
 
 model Sale {
   id          String     @id @default(uuid())
-  product     String
   description String     @default("")
-  quantity    Int
-  value       Float
+  product     Product?   @relation(fields: [productId], references: [id])
+  productId   String?
   customer    Customer?  @relation(fields: [customerId], references: [id])
   customerId  String?
   user        User?      @relation(fields: [userId], references: [id])
@@ -106,8 +113,9 @@ model Sale {
   franchise   Franchise? @relation(fields: [franchiseId], references: [id])
   franchiseId String?
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   @@map("sale")
 }

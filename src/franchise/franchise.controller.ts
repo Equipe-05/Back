@@ -6,40 +6,128 @@ import {
   Patch,
   Param,
   Delete,
+  ValidationPipe,
+  UseGuards,
+  ParseUUIDPipe,
+  UsePipes,
 } from '@nestjs/common';
 import { FranchiseService } from './franchise.service';
 import { CreateFranchiseDto } from './dto/create-franchise.dto';
 import { UpdateFranchiseDto } from './dto/update-franchise.dto';
+import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { isRole, isRoleCheck } from 'src/common/helpers/role-check.helper';
+import { Role } from '@prisma/client';
+import { User } from 'src/user/entities/user.entity';
+import { UpdateFranchiseUserDto } from './dto/update-franchise-user.dto';
 
 @Controller('franchise')
+@ApiTags('franchise')
+@UseGuards(AuthGuard())
+@ApiBearerAuth()
 export class FranchiseController {
   constructor(private readonly franchiseService: FranchiseService) {}
 
   @Post()
-  create(@Body() createFranchiseDto: CreateFranchiseDto) {
-    return this.franchiseService.create(createFranchiseDto);
+  @ApiOperation({
+    summary: 'Criar uma nova franquia',
+    description: 'Criar uma nova franquia para a rede de franquias',
+  })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async create(@Body() payload: CreateFranchiseDto, @GetUser() user: User) {
+    try {
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
+      return await this.franchiseService.create(payload);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 
   @Get()
-  findAll() {
-    return this.franchiseService.findAll();
+  @ApiOperation({
+    summary: 'Listar todas as franquias',
+    description: 'Listar todas as franquias da rede de franquias',
+  })
+  async findAll(@GetUser() user: User) {
+    try {
+      if (isRole(user.role, Role.OPERATOR, Role.MANAGER)) {
+        return await this.franchiseService.getAllFranchises();
+      }
+      return await this.franchiseService.getMyFranchise(user.id);
+    } catch (error) {
+      console.log(error);
+      exceptionsFilter(error);
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.franchiseService.findOne(id);
+  @ApiOperation({
+    summary: 'Listar uma franquia',
+    description: 'Listar uma franquia da rede de franquias',
+  })
+  async findOne(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
+    try {
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
+      return this.franchiseService.findOne(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateFranchiseDto: UpdateFranchiseDto,
+  @ApiOperation({
+    summary: 'Atualizar uma franquia',
+    description: 'Atualizar uma franquia da rede de franquias',
+  })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: UpdateFranchiseDto,
+    @GetUser() user: User,
   ) {
-    return this.franchiseService.update(id, updateFranchiseDto);
+    try {
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
+      return await this.franchiseService.updateFranchise(id, payload);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
+
+  @Patch(':id/user')
+  @ApiOperation({
+    summary: 'Vincula um usuário a uma franquia',
+    description:
+      'Vincula um usuário a uma franquia da rede de franquias, o usuário deve ser um franqueado',
+  })
+  @ApiBody({ type: UpdateFranchiseUserDto })
+  async updateFranchiseUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('userId', ParseUUIDPipe) payload: string,
+    @GetUser() user: User,
+  ) {
+    try {
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
+      console.table(payload);
+      return await this.franchiseService.setFranchiseOwner(id, payload);
+    } catch (error) {
+      console.log(error);
+      exceptionsFilter(error);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.franchiseService.remove(id);
+  @ApiOperation({
+    summary: 'Remover uma franquia',
+    description: 'Remover uma franquia da rede de franquias',
+  })
+  async remove(@Param('id') id: string, @GetUser() user: User) {
+    try {
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
+      return await this.franchiseService.endFranchise(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 }

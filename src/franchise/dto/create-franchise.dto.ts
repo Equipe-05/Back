@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
-  Length,
   Matches,
   MaxLength,
   MinLength,
@@ -15,9 +14,9 @@ export class CreateFranchiseDto {
   @MaxLength(50)
   @ApiProperty({
     description: 'O nome da franquia',
-    example: 'John Doe',
+    example: 'Franquia do João da Silva S/A',
   })
-  name: string;
+  readonly name: string;
 
   @IsString()
   @IsNotEmpty()
@@ -27,7 +26,7 @@ export class CreateFranchiseDto {
     description: 'O endereço da franquia',
     example: 'Rua dos Bobos, 0',
   })
-  address: string;
+  readonly address: string;
 
   @IsString()
   @IsNotEmpty()
@@ -45,11 +44,10 @@ export class CreateFranchiseDto {
       'Telefone usuário (Exemplos: +55 (11) 98888-8888 / 9888-8888 / 11 98888-8888 / 5511988888888)',
     example: '11 98888-8888',
   })
-  phone: string;
+  readonly phone: string;
 
   @IsString()
   @IsNotEmpty()
-  @Length(14, 14)
   @Matches(/^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/, {
     message: 'CNPJ inválido (Exemplo: 11.111.111/1111-11)',
   })
@@ -57,45 +55,5 @@ export class CreateFranchiseDto {
     description: 'O CNPJ da franquia',
     example: '11.111.111/1111-11',
   })
-  cnpj: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @ApiProperty({
-    description: 'Os clientes da franquia',
-    example: '',
-  })
-  costumers: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @ApiProperty({
-    description: 'As vendas da franquia',
-    example: '',
-  })
-  sales: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @ApiProperty({
-    description: 'O score da franquia',
-    example: '',
-  })
-  score: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @ApiProperty({
-    description: 'O status da franquia',
-    example: '',
-  })
-  status: string;
+  readonly cnpj: string;
 }
