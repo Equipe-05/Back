@@ -2,15 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { CreateFranchiseDto } from './dto/create-franchise.dto';
 import { UpdateFranchiseDto } from './dto/update-franchise.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class FranchiseService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createFranchiseDto: CreateFranchiseDto) {
-    const { name, address, cnpj, phone, score } = createFranchiseDto;
+  async create(createFranchiseDto: CreateFranchiseDto) {
+    const { name, address, cnpj, phone } = createFranchiseDto;
+    const data: Prisma.FranchiseCreateInput = {
+      name,
+      address,
+      cnpj,
+      phone,
+    };
 
-    return 'This action adds a new franchise';
+    return await this.prisma.franchise.create({ data });
   }
 
   async findAll() {

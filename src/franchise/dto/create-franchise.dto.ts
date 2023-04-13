@@ -49,7 +49,6 @@ export class CreateFranchiseDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(14, 14)
   @Matches(/^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/, {
     message: 'CNPJ inválido (Exemplo: 11.111.111/1111-11)',
   })
@@ -58,44 +57,4 @@ export class CreateFranchiseDto {
     example: '11.111.111/1111-11',
   })
   readonly cnpj: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @ApiProperty({
-    description: 'Os clientes da franquia',
-    example: '',
-  })
-  readonly costumers: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @ApiProperty({
-    description: 'As vendas da franquia',
-    example: '',
-  })
-  readonly sales: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @ApiProperty({
-    description: 'O score da franquia',
-    example: '',
-  })
-  readonly score: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  @ApiProperty({
-    description: 'O status da franquia',
-    example: '',
-  })
-  readonly status: string;
 }
