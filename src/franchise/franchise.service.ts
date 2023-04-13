@@ -8,6 +8,8 @@ export class FranchiseService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createFranchiseDto: CreateFranchiseDto) {
+    const { name, address, cnpj, phone, score } = createFranchiseDto;
+
     return 'This action adds a new franchise';
   }
 

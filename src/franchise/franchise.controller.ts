@@ -6,18 +6,37 @@ import {
   Patch,
   Param,
   Delete,
+  ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { FranchiseService } from './franchise.service';
 import { CreateFranchiseDto } from './dto/create-franchise.dto';
 import { UpdateFranchiseDto } from './dto/update-franchise.dto';
+import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { isRole } from 'src/common/helpers/role-check.helper';
+import { Role } from '@prisma/client';
+import { User } from 'src/user/entities/user.entity';
 
-@Controller('franchise')
+@Controller('franchisee')
+@UseGuards(AuthGuard())
+@ApiBearerAuth()
 export class FranchiseController {
   constructor(private readonly franchiseService: FranchiseService) {}
 
   @Post()
-  create(@Body() createFranchiseDto: CreateFranchiseDto) {
-    return this.franchiseService.create(createFranchiseDto);
+  create(
+    @Body(ValidationPipe) createFranchiseDto: CreateFranchiseDto,
+    @GetUser() user: User,
+  ) {
+    try {
+      isRole(user.role, Role.OPERATOR, Role.MANAGER);
+      return this.franchiseService.create(createFranchiseDto);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 
   @Get()

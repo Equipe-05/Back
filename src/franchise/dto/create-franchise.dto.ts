@@ -17,7 +17,7 @@ export class CreateFranchiseDto {
     description: 'O nome da franquia',
     example: 'John Doe',
   })
-  name: string;
+  readonly name: string;
 
   @IsString()
   @IsNotEmpty()
@@ -27,7 +27,7 @@ export class CreateFranchiseDto {
     description: 'O endereço da franquia',
     example: 'Rua dos Bobos, 0',
   })
-  address: string;
+  readonly address: string;
 
   @IsString()
   @IsNotEmpty()
@@ -45,7 +45,7 @@ export class CreateFranchiseDto {
       'Telefone usuário (Exemplos: +55 (11) 98888-8888 / 9888-8888 / 11 98888-8888 / 5511988888888)',
     example: '11 98888-8888',
   })
-  phone: string;
+  readonly phone: string;
 
   @IsString()
   @IsNotEmpty()
@@ -57,7 +57,7 @@ export class CreateFranchiseDto {
     description: 'O CNPJ da franquia',
     example: '11.111.111/1111-11',
   })
-  cnpj: string;
+  readonly cnpj: string;
 
   @IsString()
   @IsNotEmpty()
@@ -67,7 +67,7 @@ export class CreateFranchiseDto {
     description: 'Os clientes da franquia',
     example: '',
   })
-  costumers: string;
+  readonly costumers: string;
 
   @IsString()
   @IsNotEmpty()
@@ -77,7 +77,7 @@ export class CreateFranchiseDto {
     description: 'As vendas da franquia',
     example: '',
   })
-  sales: string;
+  readonly sales: string;
 
   @IsString()
   @IsNotEmpty()
@@ -87,7 +87,7 @@ export class CreateFranchiseDto {
     description: 'O score da franquia',
     example: '',
   })
-  score: string;
+  readonly score: string;
 
   @IsString()
   @IsNotEmpty()
@@ -97,5 +97,5 @@ export class CreateFranchiseDto {
     description: 'O status da franquia',
     example: '',
   })
-  status: string;
+  readonly status: string;
 }
