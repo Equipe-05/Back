@@ -1,7 +1,19 @@
 import { Role } from '@prisma/client';
 
 export function isRole(role: Role, ...args: Role[]) {
+  return args.includes(role);
+}
+
+export function isNotRole(userRole: Role, role: Role) {
+  return userRole !== role;
+}
+
+export function isRoleCheck(role: Role, ...args: Role[]) {
   !args.includes(role) && throwRoleException(args);
+}
+
+export function isNotRoleCheck(userRole: Role, role: Role) {
+  userRole !== role && throwRoleException([role]);
 }
 
 function throwRoleException(args: Role[]) {
