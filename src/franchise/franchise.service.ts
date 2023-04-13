@@ -4,6 +4,7 @@ import { UpdateFranchiseDto } from './dto/update-franchise.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, Role } from '@prisma/client';
 import { isRoleCheck } from 'src/common/helpers/role-check.helper';
+import { GetFranchiseFilterDto } from './dto/get-franchises-filter.dto';
 
 const select = {
   id: true,
@@ -26,7 +27,7 @@ const select = {
 export class FranchiseService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(payload: CreateFranchiseDto) {
+  async createFranchise(payload: CreateFranchiseDto) {
     const { name, address, cnpj, phone } = payload;
     const data: Prisma.FranchiseCreateInput = {
       name,
@@ -38,11 +39,52 @@ export class FranchiseService {
     return await this.prisma.franchise.create({ data, select });
   }
 
-  async getAllFranchises() {
-    return this.prisma.franchise.findMany({
-      select,
-      orderBy: [{ deletedAt: 'desc' }, { name: 'asc' }],
-    });
+  async getAllFranchises(payload: GetFranchiseFilterDto) {
+    const { minscore, maxscore, search, deleted } = payload;
+    const where: Prisma.FranchiseWhereInput = {};
+
+    if (minscore && maxscore) {
+      where.score = {
+        gte: minscore,
+        lte: maxscore,
+      };
+    } else if (minscore) {
+      where.score = {
+        gte: minscore,
+      };
+    } else if (maxscore) {
+      where.score = {
+        lte: maxscore,
+      };
+    }
+
+    if (search) {
+      where.OR = [
+        {
+          name: {
+            contains: search,
+          },
+        },
+        {
+          address: {
+            contains: search,
+          },
+        },
+        {
+          cnpj: {
+            contains: search,
+          },
+        },
+      ];
+    }
+
+    if (deleted) {
+      deleted === 'TRUE'
+        ? (where.deletedAt = { not: null })
+        : (where.deletedAt = null);
+    }
+
+    return this.prisma.franchise.findMany({ where, select });
   }
 
   async getMyFranchise(id: string) {
@@ -50,9 +92,8 @@ export class FranchiseService {
     return this.prisma.franchise.findMany({ where, select });
   }
 
-  async findOne(id: string) {
-    const franchise = await this.findOneByIdWithUser(id);
-    return franchise;
+  async getFranchiseById(id: string) {
+    return this.findOneByIdWithUser(id);
   }
 
   async updateFranchise(id: string, payload: UpdateFranchiseDto) {

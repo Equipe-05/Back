@@ -10,6 +10,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -26,6 +28,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { GetUserFilterDto } from './dto/get-users-filter.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -41,22 +44,37 @@ export class UserController {
     summary: 'Criar um novo usuário',
     description: 'Criar um novo usuário',
   })
-  async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+  async createUser(@Body(ValidationPipe) payload: CreateUserDto) {
     try {
-      return await this.userService.create(createUserDto);
+      return await this.userService.createUser(payload);
     } catch (error) {
       exceptionsFilter(error);
     }
   }
 
   @Get()
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Filtra usuários por nome ou email',
+  })
+  @ApiQuery({
+    name: 'role',
+    required: false,
+    description: 'Filtra usuários por Role',
+  })
+  @ApiQuery({
+    name: 'deleted',
+    required: false,
+    description: 'Filtra usuários por status de exclusão',
+  })
   @ApiOperation({
     summary: 'Listar todos os usuários',
     description: 'Listar todos os usuários',
   })
-  async findAll() {
+  async getUsers(@Query(ValidationPipe) payload: GetUserFilterDto) {
     try {
-      return await this.userService.findAll();
+      return await this.userService.getUsers(payload);
     } catch (error) {
       exceptionsFilter(error);
     }
