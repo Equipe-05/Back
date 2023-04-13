@@ -63,11 +63,13 @@ export class FranchiseService {
         {
           name: {
             contains: search,
+            mode: 'insensitive',
           },
         },
         {
           address: {
             contains: search,
+            mode: 'insensitive',
           },
         },
         {
