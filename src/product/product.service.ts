@@ -66,7 +66,7 @@ export class ProductService {
   }
 
   async getProductById(id: string) {
-    return `This action returns a #${id} product`;
+    return await this.findOneById(id);
   }
 
   async updateProduct(id: string, updateProductDto: UpdateProductDto) {
