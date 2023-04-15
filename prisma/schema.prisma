@@ -121,3 +121,11 @@ model Sale {
 }
 
 // TODO: add Ticket model to track the status support tickets
+// ! Ticket model
+// * id: String
+// * description: String
+// * status: String
+// * franchise: Franchise
+// * createdAt: DateTime
+// * updatedAt: DateTime
+// * deletedAt: DateTime
