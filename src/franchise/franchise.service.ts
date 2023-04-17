@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, Role } from '@prisma/client';
 import { isRoleCheck } from 'src/common/helpers/role-check.helper';
 import { GetFranchiseFilterDto } from './dto/get-franchises-filter.dto';
+import { User } from 'src/user/entities/user.entity';
 
 const select = {
   id: true,
@@ -123,6 +124,10 @@ export class FranchiseService {
       },
     };
 
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { ownerId: userId },
+    });
     return this.prisma.franchise.update({ where, data, select });
   }
 
