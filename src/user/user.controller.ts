@@ -56,7 +56,7 @@ export class UserController {
       isRoleCheck(user.role, Role.FRANCHISEE, Role.OPERATOR, Role.MANAGER);
       this.logger.verbose(`New user created by ${user.role} ${user.id}`);
 
-      return await this.userService.createUserByRole(payload, user.role);
+      return await this.userService.createUserByRole(payload, user);
     } catch (error) {
       exceptionsFilter(error);
     }

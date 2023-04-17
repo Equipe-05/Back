@@ -9,6 +9,8 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { GetUserFilterDto } from './dto/get-users-filter.dto';
 import { createdUserRole } from 'src/common/util/create-user-role';
+import { isRole } from 'src/common/helpers/role-check.helper';
+import { User } from './entities/user.entity';
 
 const select = {
   id: true,
@@ -26,28 +28,26 @@ const select = {
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUserByRole(payload: CreateUserDto, userRole: Role) {
+  async createUserByRole(payload: CreateUserDto, user: User) {
     const role: Role =
-      createdUserRole.get(userRole) ?? createdUserRole.get('default');
+      createdUserRole.get(user.role) ?? createdUserRole.get('default');
+    const newUserDto: CreateUserPayload = { ...payload, role };
 
-    return await this.createUser({ ...payload, role });
+    if (isRole(user.role, Role.FRANCHISEE)) newUserDto.ownerId = user.id;
+
+    return await this.createUser(newUserDto);
   }
 
-  async createUser(payload: CreateUserDto) {
+  async createUser(payload: CreateUserPayload) {
     await this.compareConfirmPassword(
       payload.password,
       payload.confirmPassword,
     );
     const salt = await genSalt();
-
     const data: Prisma.UserCreateInput = {
-      name: payload.name,
-      email: payload.email,
+      ...payload,
       password: await hash(payload.password, salt),
       role: Role[payload?.role] ?? Role.EMPLOYEE,
-      address: payload.address,
-      cpf: payload.cpf,
-      phone: payload.phone,
     };
 
     return await this.prisma.user.create({ data, select });
@@ -186,4 +186,8 @@ export class UserService {
         message: 'Invalid password',
       };
   }
+}
+
+interface CreateUserPayload extends CreateUserDto {
+  ownerId?: string;
 }
