@@ -8,7 +8,7 @@ import { AuthCredentialsDto } from 'src/auth/dto/auth-credentials.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { GetUserFilterDto } from './dto/get-users-filter.dto';
-import { createUserRole } from 'src/common/util/create-user-role';
+import { createdUserRole } from 'src/common/util/create-user-role';
 
 const select = {
   id: true,
@@ -28,7 +28,7 @@ export class UserService {
 
   async createUserByRole(payload: CreateUserDto, userRole: Role) {
     const role: Role =
-      createUserRole.get(userRole) ?? createUserRole.get('default');
+      createdUserRole.get(userRole) ?? createdUserRole.get('default');
 
     return await this.createUser({ ...payload, role });
   }

@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client';
 
-export const createUserRole = new Map<Role | 'default', Role>([
+export const createdUserRole = new Map<Role | 'default', Role>([
   [Role.EMPLOYEE, Role.EMPLOYEE],
   [Role.FRANCHISEE, Role.EMPLOYEE],
   [Role.OPERATOR, Role.FRANCHISEE],
