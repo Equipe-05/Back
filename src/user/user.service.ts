@@ -8,6 +8,9 @@ import { AuthCredentialsDto } from 'src/auth/dto/auth-credentials.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { GetUserFilterDto } from './dto/get-users-filter.dto';
+import { createdUserRole } from 'src/common/util/create-user-role';
+import { isRole } from 'src/common/helpers/role-check.helper';
+import { User } from './entities/user.entity';
 
 const select = {
   id: true,
@@ -25,21 +28,26 @@ const select = {
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUserByRole(payload: CreateUserDto, user: User) {
+    const role: Role =
+      createdUserRole.get(user.role) ?? createdUserRole.get('default');
+    const newUserDto: CreateUserPayload = { ...payload, role };
+
+    if (isRole(user.role, Role.FRANCHISEE)) newUserDto.ownerId = user.id;
+
+    return await this.createUser(newUserDto);
+  }
+
+  async createUser(payload: CreateUserPayload) {
     await this.compareConfirmPassword(
-      createUserDto.password,
-      createUserDto.confirmPassword,
+      payload.password,
+      payload.confirmPassword,
     );
     const salt = await genSalt();
-
     const data: Prisma.UserCreateInput = {
-      name: createUserDto.name,
-      email: createUserDto.email,
-      password: await hash(createUserDto.password, salt),
-      role: Role[createUserDto.role],
-      address: createUserDto.address,
-      cpf: createUserDto.cpf,
-      phone: createUserDto.phone,
+      ...payload,
+      password: await hash(payload.password, salt),
+      role: Role[payload?.role] ?? Role.EMPLOYEE,
     };
 
     return await this.prisma.user.create({ data, select });
@@ -79,29 +87,21 @@ export class UserService {
     return await this.prisma.user.findMany({ where, select });
   }
 
-  async findOne(id: string) {
+  async getUserById(id: string) {
     const user = await this.findOneById(id);
-    delete user.password;
+    delete user?.password;
 
     return user;
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.findOneById(id);
+  async updateUser(id: string, payload: UpdateUserDto) {
     const where = { id };
-    const data: Prisma.UserUpdateInput = {};
-
-    data.name = updateUserDto.name ?? user.name;
-    data.email = updateUserDto.email ?? user.email;
-    data.address = updateUserDto.address ?? user.address;
-    data.cpf = updateUserDto.cpf ?? user.cpf;
-    data.phone = updateUserDto.phone ?? user.phone;
+    const data: Prisma.UserUpdateInput = { ...payload };
 
     return this.prisma.user.update({ where, data, select });
   }
 
   async updateUserRole(id: string, payload: UpdateUserRoleDto) {
-    await this.findOneById(id);
     const where = { id };
     const data: Prisma.UserUpdateInput = {
       role: Role[payload.role],
@@ -126,10 +126,10 @@ export class UserService {
     return this.prisma.user.update({ where, data, select });
   }
 
-  async remove(id: string) {
+  async deleteUser(id: string) {
     const where = { id };
-    await this.findOneById(id);
-    await this.prisma.user.delete({ where });
+    const data = { deletedAt: new Date() };
+    await this.prisma.user.update({ where, data });
   }
 
   async signIn(authCredentialsDto: AuthCredentialsDto) {
@@ -186,4 +186,8 @@ export class UserService {
         message: 'Invalid password',
       };
   }
+}
+
+interface CreateUserPayload extends CreateUserDto {
+  ownerId?: string;
 }

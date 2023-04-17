@@ -61,7 +61,7 @@ export class FranchiseController {
       if (isRole(user.role, Role.OPERATOR, Role.MANAGER)) {
         return await this.franchiseService.getAllFranchises(payload);
       }
-      return await this.franchiseService.getMyFranchise(user.id);
+      return await this.franchiseService.getMyFranchise(user.ownerId);
     } catch (error) {
       exceptionsFilter(error);
     }

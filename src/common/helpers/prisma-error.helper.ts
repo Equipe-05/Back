@@ -15,7 +15,7 @@ export function prismaExceptionHelper(error: Error) {
       'P2025',
       {
         name: 'NotFoundError',
-        message: error?.meta?.cause ?? 'Data not found.',
+        message: error?.message ?? error?.meta?.cause ?? 'Data not found.',
       },
     ],
     [
