@@ -20,20 +20,6 @@ import { User } from 'src/user/entities/user.entity';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('/signup')
-  @ApiOperation({
-    summary: 'Inscrever-se com nome de usuário e senha',
-    description:
-      'Inscreva-se com credenciais de nome de usuário e senha. O nome de usuário deve estar em minúsculas. A senha deve ter pelo menos 8 caracteres, e conter pelo menos uma letra minúscula, uma letra maiúscula, um número e um símbolo.',
-  })
-  async signUp(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    try {
-      return await this.authService.signUp(createUserDto);
-    } catch (error) {
-      exceptionsFilter(error);
-    }
-  }
-
   @Post('/signin')
   @ApiOperation({
     summary: 'Fazer login com nome de usuário e senha',

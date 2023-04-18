@@ -22,13 +22,17 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
+import { isRole, isRoleCheck } from 'src/common/helpers/role-check.helper';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserService } from './user.service';
-import { UpdateUserRoleDto } from './dto/update-user-role.dto';
-import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { GetUserFilterDto } from './dto/get-users-filter.dto';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
+import { UserService } from './user.service';
 
 @ApiTags('user')
 @Controller('user')
@@ -41,12 +45,18 @@ export class UserController {
 
   @Post()
   @ApiOperation({
-    summary: 'Criar um novo usuário',
+    summary: 'Criar um novo usuário. A Role é definida pelo usuário logado.',
     description: 'Criar um novo usuário',
   })
-  async createUser(@Body(ValidationPipe) payload: CreateUserDto) {
+  async createUser(
+    @Body(ValidationPipe) payload: CreateUserDto,
+    @GetUser() user: User,
+  ) {
     try {
-      return await this.userService.createUser(payload);
+      isRoleCheck(user.role, Role.FRANCHISEE, Role.OPERATOR, Role.MANAGER);
+      this.logger.verbose(`New user created by ${user.role} ${user.id}`);
+
+      return await this.userService.createUserByRole(payload, user);
     } catch (error) {
       exceptionsFilter(error);
     }
@@ -86,9 +96,9 @@ export class UserController {
     description:
       'Listar um usuário por ID. O ID é passado como um parâmetro na URL.',
   })
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+  async getUser(@Param('id', ParseUUIDPipe) id: string) {
     try {
-      return await this.userService.findOne(id);
+      return await this.userService.getUserById(id);
     } catch (error) {
       exceptionsFilter(error);
     }
@@ -123,8 +133,10 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe({ whitelist: true }))
     payload: UpdateUserRoleDto,
+    @GetUser() user: User,
   ) {
     try {
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
       this.logger.verbose(`Updating user role: id ${id}`);
       return await this.userService.updateUserRole(id, payload);
     } catch (error) {
@@ -155,21 +167,21 @@ export class UserController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({
     status: 204,
-    description: 'Produto deletado com sucesso',
+    description: 'Usuário deletado com sucesso',
   })
   @ApiResponse({
     status: 404,
-    description: 'Produto não encontrado',
+    description: 'Usuário não encontrado',
   })
   @ApiOperation({
     summary: 'Deleta um usuário por ID',
     description:
       'Deleta um usuário por ID. O ID é passado como um parâmetro na URL.',
   })
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async deleteUser(@Param('id', ParseUUIDPipe) id: string) {
     try {
       this.logger.verbose(`Removing user with id ${id}`);
-      await this.userService.remove(id);
+      await this.userService.deleteUser(id);
     } catch (error) {
       exceptionsFilter(error);
     }

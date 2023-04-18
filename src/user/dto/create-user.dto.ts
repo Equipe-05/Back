@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -31,14 +34,9 @@ export class CreateUserDto {
   readonly email: string;
 
   @IsString()
-  @IsNotEmpty()
-  @Matches(/^(EMPLOYEE|FRANCHISEE|OPERATOR|MANAGER)$/, {
-    message:
-      'Role must be a valid role. Valid roles: EMPLOYEE, FRANCHISEE, OPERATOR, MANAGER',
-  })
-  @ApiProperty({
-    description: 'The role of the user',
-    example: 'FRANCHISEE',
+  @IsOptional()
+  @IsIn(Object.values(Role), {
+    message: `Plan must be a valid plan. Valid plans: ${Object.values(Role)}`,
   })
   readonly role: string;
 

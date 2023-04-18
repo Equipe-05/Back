@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFranchiseDto } from './dto/create-franchise.dto';
-import { UpdateFranchiseDto } from './dto/update-franchise.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, Role } from '@prisma/client';
 import { isRoleCheck } from 'src/common/helpers/role-check.helper';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateFranchiseDto } from './dto/create-franchise.dto';
 import { GetFranchiseFilterDto } from './dto/get-franchises-filter.dto';
+import { UpdateFranchiseDto } from './dto/update-franchise.dto';
 
 const select = {
   id: true,
@@ -123,6 +123,10 @@ export class FranchiseService {
       },
     };
 
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { ownerId: userId },
+    });
     return this.prisma.franchise.update({ where, data, select });
   }
 
