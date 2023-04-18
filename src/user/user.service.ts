@@ -39,13 +39,11 @@ export class UserService {
   }
 
   async createUser(payload: CreateUserPayload) {
-    await this.compareConfirmPassword(
-      payload.password,
-      payload.confirmPassword,
-    );
+    const { confirmPassword, ...userData } = payload;
+    await this.compareConfirmPassword(userData.password, confirmPassword);
     const salt = await genSalt();
     const data: Prisma.UserCreateInput = {
-      ...payload,
+      ...userData,
       password: await hash(payload.password, salt),
       role: Role[payload?.role] ?? Role.EMPLOYEE,
     };
