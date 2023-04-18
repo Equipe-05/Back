@@ -11,6 +11,7 @@ import { GetUserFilterDto } from './dto/get-users-filter.dto';
 import { createdUserRole } from 'src/common/util/create-user-role';
 import { isRole } from 'src/common/helpers/role-check.helper';
 import { User } from './entities/user.entity';
+import { CreateUserPayload } from './dto/create-user-payload.dto';
 
 const select = {
   id: true,
@@ -184,8 +185,4 @@ export class UserService {
         message: 'Invalid password',
       };
   }
-}
-
-interface CreateUserPayload extends CreateUserDto {
-  ownerId?: string;
 }
