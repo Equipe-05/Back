@@ -45,7 +45,7 @@ export class UserController {
 
   @Post()
   @ApiOperation({
-    summary: 'Criar um novo usuário',
+    summary: 'Criar um novo usuário. A Role é definida pelo usuário logado.',
     description: 'Criar um novo usuário',
   })
   async createUser(

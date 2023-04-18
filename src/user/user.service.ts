@@ -11,6 +11,7 @@ import { GetUserFilterDto } from './dto/get-users-filter.dto';
 import { createdUserRole } from 'src/common/util/create-user-role';
 import { isRole } from 'src/common/helpers/role-check.helper';
 import { User } from './entities/user.entity';
+import { CreateUserPayload } from './dto/create-user-payload.dto';
 
 const select = {
   id: true,
@@ -39,13 +40,11 @@ export class UserService {
   }
 
   async createUser(payload: CreateUserPayload) {
-    await this.compareConfirmPassword(
-      payload.password,
-      payload.confirmPassword,
-    );
+    const { confirmPassword, ...userData } = payload;
+    await this.compareConfirmPassword(userData.password, confirmPassword);
     const salt = await genSalt();
     const data: Prisma.UserCreateInput = {
-      ...payload,
+      ...userData,
       password: await hash(payload.password, salt),
       role: Role[payload?.role] ?? Role.EMPLOYEE,
     };
@@ -186,8 +185,4 @@ export class UserService {
         message: 'Invalid password',
       };
   }
-}
-
-interface CreateUserPayload extends CreateUserDto {
-  ownerId?: string;
 }
