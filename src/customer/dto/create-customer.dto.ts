@@ -13,7 +13,7 @@ export class CreateCustomerDto {
   @MinLength(3)
   @MaxLength(50)
   @ApiProperty({
-    description: 'The name of the user',
+    description: 'O nome do cliente',
     example: 'John Doe',
   })
   readonly name: string;
