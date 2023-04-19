@@ -80,7 +80,7 @@ export class CustomerController {
     description: 'Filtro de busca de clientes',
   })
   async findAllCustomers(
-    @Query() payload: GetCustomerFilterDto,
+    @Query(ValidationPipe) payload: GetCustomerFilterDto,
     @GetUser() user: User,
   ) {
     try {
