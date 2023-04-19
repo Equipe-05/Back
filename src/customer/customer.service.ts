@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateCustomerDto } from './dto/create-customer.dto';
+import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 
 @Injectable()
 export class CustomerService {
@@ -39,13 +40,27 @@ export class CustomerService {
   //   });
   // }
 
-  // async findAllCustomers(): Promise<Customer[]> {
-  //   return this.prisma.customer.findMany();
-  // }
+  async findAllCustomers(payload: GetCustomerFilterDto) {
+    const { name, cnpj } = payload;
+    const where: Prisma.CustomerWhereInput = {};
+    if (name) {
+      where.name = {
+        contains: name,
+        mode: 'insensitive',
+      };
+    } else if (cnpj) {
+      where.cnpj = {
+        contains: cnpj,
+      };
+    }
+    return await this.prisma.customer.findMany({
+      where,
+    });
+  }
 
-  // async findByIdCustomer(id: string): Promise<Customer> {
-  //   return this.prisma.customer.findUnique({
-  //     where: { id },
-  //   });
-  // }
+  async findByIdCustomer(id: string) {
+    return this.prisma.customer.findUnique({
+      where: { id },
+    });
+  }
 }
