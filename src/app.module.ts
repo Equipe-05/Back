@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductModule } from './product/product.module';
 import { FranchiseModule } from './franchise/franchise.module';
+import { CustomerModule } from './customer/customer.module';
 
 
 @Module({
@@ -21,6 +22,7 @@ import { FranchiseModule } from './franchise/franchise.module';
     AuthModule,
     ProductModule,
     FranchiseModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
