@@ -112,7 +112,7 @@ export class CustomerController {
   async remove(@Param('id') id: string, @GetUser() user: User) {
     try {
       isRoleCheck(user.role, Role.FRANCHISEE, Role.EMPLOYEE);
-      return await this.customerService.endCostumer(id);
+      await this.customerService.endCostumer(id);
     } catch (error) {
       exceptionsFilter(error);
     }
