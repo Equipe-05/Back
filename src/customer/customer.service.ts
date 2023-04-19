@@ -1,40 +1,51 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Customer, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { CreateCustomerDto } from './dto/create-customer.dto';
 
 @Injectable()
 export class CustomerService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Prisma.CustomerCreateInput): Promise<Customer> {
-    return this.prisma.customer.create({
-      data,
-    });
+  async createCustomer(payload: CreateCustomerDto) {
+    const { name, address, cnpj, phone, franchiseId } = payload;
+    const data: Prisma.CustomerCreateInput = {
+      name,
+      address,
+      cnpj,
+      phone,
+      franchise: {
+        connect: {
+          id: franchiseId,
+        },
+      },
+    };
+    return await this.prisma.customer.create({ data });
   }
 
-  async update(
-    id: string,
-    data: Prisma.CustomerUpdateInput,
-  ): Promise<Customer> {
-    return this.prisma.customer.update({
-      where: { id },
-      data,
-    });
-  }
+  // async updateCustomer(
+  //   id: string,
+  //   data: Prisma.CustomerUpdateInput,
+  // ): Promise<Customer> {
+  //   return this.prisma.customer.update({
+  //     where: { id },
+  //     data,
+  //   });
+  // }
 
-  async delete(id: string): Promise<Customer> {
-    return this.prisma.customer.delete({
-      where: { id },
-    });
-  }
+  // async deleteCustomer(id: string): Promise<Customer> {
+  //   return this.prisma.customer.delete({
+  //     where: { id },
+  //   });
+  // }
 
-  async findAll(): Promise<Customer[]> {
-    return this.prisma.customer.findMany();
-  }
+  // async findAllCustomers(): Promise<Customer[]> {
+  //   return this.prisma.customer.findMany();
+  // }
 
-  async findById(id: string): Promise<Customer> {
-    return this.prisma.customer.findUnique({
-      where: { id },
-    });
-  }
+  // async findByIdCustomer(id: string): Promise<Customer> {
+  //   return this.prisma.customer.findUnique({
+  //     where: { id },
+  //   });
+  // }
 }

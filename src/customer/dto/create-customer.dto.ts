@@ -62,7 +62,7 @@ export class CreateCustomerDto {
   @MaxLength(50)
   @ApiProperty({
     description: 'o Id da franquia',
-    example: 'Id da franquia',
+    example: 'f88c5ef9-badb-4523-af6e-dbea69aadb3c',
   })
   readonly franchiseId: string;
 }
