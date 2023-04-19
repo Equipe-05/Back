@@ -84,7 +84,7 @@ export class CustomerController {
     @GetUser() user: User,
   ) {
     try {
-      return await this.customerService.findAllCustomers(payload);
+      return await this.customerService.findAllCustomers(payload, user)
     } catch (error) {
       exceptionsFilter(error);
     }
