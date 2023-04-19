@@ -11,9 +11,15 @@ import {
   ValidationPipe,
   ParseUUIDPipe,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
@@ -23,6 +29,7 @@ import { CustomerService } from './customer.service';
 import { isRoleCheck } from 'src/common/helpers/role-check.helper';
 import { Role } from '@prisma/client';
 import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @Controller('customer')
 @ApiTags('customer')
@@ -59,8 +66,30 @@ export class CustomerController {
   //     data,
   //   });
   // }
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Atualizar um cliente',
+    description: 'Atualizar um cliente pelo id',
+  })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: UpdateCustomerDto,
+    @GetUser() user: User,
+  ) {
+    try {
+      isRoleCheck(user.role, Role.FRANCHISEE, Role.EMPLOYEE);
+      return await this.customerService.updateCustomer(id, payload);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
 
   @Get()
+  @ApiOperation({
+    summary: 'Filtro de busca de clientes',
+    description: 'Filtro de busca de clientes',
+  })
   async findAllCustomers(
     @Query() payload: GetCustomerFilterDto,
     @GetUser() user: User,
@@ -72,19 +101,30 @@ export class CustomerController {
     }
   }
 
-  // @Get(':id')
-  // async findCustomerById(
-  //   @Param('id', ParseUUIDPipe) id: string,
-  // ): Promise<Customer> {
-  //   return this.prisma.customer.findUnique({
-  //     where: { id },
-  //   });
-  // }
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Buscar um cliente',
+    description: 'Buscar um cliente pelo id',
+  })
+  async findCustomerById(@Param('id', ParseUUIDPipe) id: string) {
+    try {
+      return await this.customerService.findByIdCustomer(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
 
-  // @Delete(':id')
-  // async deleteCustomer(@Param('id') id: string): Promise<Customer> {
-  //   return this.prisma.customer.delete({
-  //     where: { id },
-  //   });
-  // }
+  @Delete(':id')
+  @ApiOperation({
+    summary: 'Remover um cliente',
+    description: 'Remover um cliente pelo id',
+  })
+  async remove(@Param('id') id: string, @GetUser() user: User) {
+    try {
+      isRoleCheck(user.role, Role.FRANCHISEE, Role.EMPLOYEE);
+      return await this.customerService.endCostumer(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
 }

@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @Injectable()
 export class CustomerService {
@@ -33,12 +34,18 @@ export class CustomerService {
   //     data,
   //   });
   // }
+  async updateCustomer(id: string, payload: UpdateCustomerDto) {
+    const where = { id };
+    const { name, address, cnpj, phone } = payload;
+    const data: Prisma.CustomerUpdateInput = {
+      name,
+      address,
+      cnpj,
+      phone,
+    };
 
-  // async deleteCustomer(id: string): Promise<Customer> {
-  //   return this.prisma.customer.delete({
-  //     where: { id },
-  //   });
-  // }
+    return await this.prisma.customer.update({ where, data });
+  }
 
   async findAllCustomers(payload: GetCustomerFilterDto) {
     const { name, cnpj } = payload;
@@ -62,5 +69,27 @@ export class CustomerService {
     return this.prisma.customer.findUnique({
       where: { id },
     });
+  }
+  async endCostumer(id: string) {
+    await this.findOneById(id);
+    const where = { id };
+    const data: Prisma.CustomerUpdateInput = {
+      deletedAt: new Date(),
+    };
+
+    return this.prisma.customer.update({ where, data });
+  }
+
+  private async findOneById(id: string) {
+    const _customer = await this.prisma.customer.findUnique({
+      where: { id },
+    });
+    if (!_customer) {
+      throw {
+        name: 'NotFound',
+        message: 'Customer not found',
+      };
+    }
+    return _customer;
   }
 }
