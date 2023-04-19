@@ -108,6 +108,7 @@ export class CustomerController {
     summary: 'Remover um cliente',
     description: 'Remover um cliente pelo id',
   })
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string, @GetUser() user: User) {
     try {
       isRoleCheck(user.role, Role.FRANCHISEE, Role.EMPLOYEE);
