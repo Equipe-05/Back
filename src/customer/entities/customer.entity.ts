@@ -9,5 +9,5 @@ export class Customer {
   phone: string;
   franchises?: Franchise[];
   sales?: string[]; // ! Sale is not implemented yet
-  products?: string[];
+  products?: Product[];
 }
