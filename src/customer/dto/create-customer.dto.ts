@@ -24,7 +24,7 @@ export class CreateCustomerDto {
     message: 'CNPJ inválido (Exemplo: 11.111.111/1111-11)',
   })
   @ApiProperty({
-    description: 'O CNPJ da franquia',
+    description: 'O CNPJ do cliente',
     example: '11.111.111/1111-11',
   })
   readonly cnpj: string;
