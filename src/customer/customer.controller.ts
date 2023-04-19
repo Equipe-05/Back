@@ -10,6 +10,7 @@ import {
   UsePipes,
   ValidationPipe,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -21,13 +22,14 @@ import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
 import { CustomerService } from './customer.service';
 import { isRoleCheck } from 'src/common/helpers/role-check.helper';
 import { Role } from '@prisma/client';
+import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 
 @Controller('customer')
 @ApiTags('customer')
 @UseGuards(AuthGuard())
 @ApiBearerAuth()
 export class CustomerController {
-  constructor(private costumerService: CustomerService) {}
+  constructor(private customerService: CustomerService) {}
 
   @Post()
   @ApiOperation({
@@ -41,7 +43,7 @@ export class CustomerController {
   ) {
     try {
       isRoleCheck(user.role, Role.FRANCHISEE, Role.EMPLOYEE);
-      return await this.costumerService.createCustomer(payload);
+      return await this.customerService.createCustomer(payload);
     } catch (error) {
       exceptionsFilter(error);
     }
@@ -58,10 +60,17 @@ export class CustomerController {
   //   });
   // }
 
-  // @Get()
-  // async findAllCustomers(): Promise<Customer[]> {
-  //   return this.prisma.customer.findMany();
-  // }
+  @Get()
+  async findAllCustomers(
+    @Query() payload: GetCustomerFilterDto,
+    @GetUser() user: User,
+  ) {
+    try {
+      return await this.customerService.findAllCustomers(payload);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
 
   // @Get(':id')
   // async findCustomerById(
