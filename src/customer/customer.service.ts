@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { isRole } from 'src/common/helpers/role-check.helper';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class CustomerService {
@@ -22,19 +24,10 @@ export class CustomerService {
         },
       },
     };
-    
+
     return await this.prisma.customer.create({ data });
   }
 
-  // async updateCustomer(
-  //   id: string,
-  //   data: Prisma.CustomerUpdateInput,
-  // ): Promise<Customer> {
-  //   return this.prisma.customer.update({
-  //     where: { id },
-  //     data,
-  //   });
-  // }
   async updateCustomer(id: string, payload: UpdateCustomerDto) {
     const where = { id };
     const { name, address, cnpj, phone } = payload;
@@ -48,8 +41,8 @@ export class CustomerService {
     return await this.prisma.customer.update({ where, data });
   }
 
-async findAllCustomers(payload: GetCustomerFilterDto, user: User) {
-const { search } = payload;
+  async findAllCustomers(payload: GetCustomerFilterDto, user: User) {
+    const { search } = payload;
     const where: Prisma.CustomerWhereInput = {};
 
     if (search) {
@@ -79,21 +72,6 @@ const { search } = payload;
     }
 
     return this.prisma.customer.findMany({ where });
-    const { name, cnpj } = payload;
-    const where: Prisma.CustomerWhereInput = {};
-    if (name) {
-      where.name = {
-        contains: name,
-        mode: 'insensitive',
-      };
-    } else if (cnpj) {
-      where.cnpj = {
-        contains: cnpj,
-      };
-    }
-    return await this.prisma.customer.findMany({
-      where,
-    });
   }
 
   async findByIdCustomer(id: string) {
@@ -101,7 +79,7 @@ const { search } = payload;
       where: { id },
     });
   }
-  
+
   async endCostumer(id: string) {
     await this.findOneById(id);
     const where = { id };

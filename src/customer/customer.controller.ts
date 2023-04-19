@@ -11,6 +11,8 @@ import {
   ParseUUIDPipe,
   Query,
   Patch,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
@@ -84,7 +86,7 @@ export class CustomerController {
     @GetUser() user: User,
   ) {
     try {
-      return await this.customerService.findAllCustomers(payload, user)
+      return await this.customerService.findAllCustomers(payload, user);
     } catch (error) {
       exceptionsFilter(error);
     }

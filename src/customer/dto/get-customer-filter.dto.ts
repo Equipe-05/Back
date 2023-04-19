@@ -5,16 +5,8 @@ export class GetCustomerFilterDto {
   @IsOptional()
   @IsString()
   @ApiProperty({
-    description: 'Filter por nome do cliente',
+    description: 'Filtra busca por nome ou cnpj do cliente',
     required: false,
   })
-  name: string;
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty({
-    description: 'Filter por endereço do cliente',
-    required: false,
-  })
-  cnpj: string;
+  readonly search: string;
 }

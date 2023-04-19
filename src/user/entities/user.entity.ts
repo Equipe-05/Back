@@ -12,4 +12,5 @@ export class User {
   phone: string;
   role: Role;
   franchise?: Franchise;
+  ownerId?: string;
 }
