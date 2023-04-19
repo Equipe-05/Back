@@ -71,6 +71,7 @@ export class CustomerService {
       where: { id },
     });
   }
+  
   async endCostumer(id: string) {
     await this.findOneById(id);
     const where = { id };
