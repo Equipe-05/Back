@@ -1,34 +1,71 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CustomerService } from './customer.service';
-import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+  ParseUUIDPipe,
+} from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Customer } from '@prisma/client';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('customer')
+@ApiTags('customer')
+@UseGuards(AuthGuard())
+@ApiBearerAuth()
 export class CustomerController {
-  constructor(private readonly customerService: CustomerService) {}
+  constructor(private prisma: PrismaService) {}
 
   @Post()
-  create(@Body() createCustomerDto: CreateCustomerDto) {
-    return this.customerService.create(createCustomerDto);
+  @ApiOperation({
+    summary: 'Criar um novo cliente',
+    description: 'Criar um novo cliente para a rede de franquias',
+  })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async createCustomer(@Body() data: Customer): Promise<Customer> {
+    return this.prisma.customer.create({
+      data,
+    });
+  }
+
+  @Put(':id')
+  async updateCustomer(
+    @Param('id') id: string,
+    @Body() data: Customer,
+  ): Promise<Customer> {
+    return this.prisma.customer.update({
+      where: { id },
+      data,
+    });
   }
 
   @Get()
-  findAll() {
-    return this.customerService.findAll();
+  async findAllCustomers(): Promise<Customer[]> {
+    return this.prisma.customer.findMany();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.customerService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
-    return this.customerService.update(+id, updateCustomerDto);
+  async findCustomerById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<Customer> {
+    return this.prisma.customer.findUnique({
+      where: { id },
+    });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.customerService.remove(+id);
+  async deleteCustomer(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<Customer> {
+    return this.prisma.customer.delete({
+      where: { id },
+    });
   }
 }
