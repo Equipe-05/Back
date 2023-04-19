@@ -56,16 +56,6 @@ export class CustomerController {
     }
   }
 
-  // @Put(':id')
-  // async updateCustomer(
-  //   @Param('id') id: string,
-  //   @Body() data: Customer
-  // ): Promise<Customer> {
-  //   return this.prisma.customer.update({
-  //     where: { id },
-  //     data,
-  //   });
-  // }
   @Patch(':id')
   @ApiOperation({
     summary: 'Atualizar um cliente',
