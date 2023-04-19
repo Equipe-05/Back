@@ -48,7 +48,37 @@ export class CustomerService {
     return await this.prisma.customer.update({ where, data });
   }
 
-  async findAllCustomers(payload: GetCustomerFilterDto) {
+async findAllCustomers(payload: GetCustomerFilterDto, user: User) {
+const { search } = payload;
+    const where: Prisma.CustomerWhereInput = {};
+
+    if (search) {
+      where.OR = [
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          cnpj: {
+            contains: search,
+          },
+        },
+      ];
+    }
+
+    if (isRole(user.role, Role.EMPLOYEE, Role.FRANCHISEE)) {
+      const franchiseId = await this.prisma.franchise.findUnique({
+        where: { userId: user.ownerId },
+        select: { id: true },
+      });
+      if (franchiseId.id) {
+        where.franchiseId = franchiseId.id;
+      }
+    }
+
+    return this.prisma.customer.findMany({ where });
     const { name, cnpj } = payload;
     const where: Prisma.CustomerWhereInput = {};
     if (name) {
