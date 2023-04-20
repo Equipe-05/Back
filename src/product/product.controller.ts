@@ -47,13 +47,14 @@ export class ProductController {
     description:
       'Criar um novo Produto que será disponibilizado para os franqueados da rede',
   })
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   async createProduct(
-    @Body(ValidationPipe) createProductDto: CreateProductDto,
+    @Body() payload: CreateProductDto,
     @GetUser() user: User,
   ) {
     try {
       isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
-      return await this.productService.createProduct(createProductDto);
+      return await this.productService.createProduct(payload);
     } catch (error) {
       exceptionsFilter(error);
     }
