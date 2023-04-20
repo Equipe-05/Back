@@ -1,5 +1,6 @@
 import { Plan } from '@prisma/client';
 import { Franchise } from 'src/franchise/entities/franchise.entity';
+import { Sale } from 'src/sale/entities/sale.entity';
 
 export class Product {
   id?: string;
@@ -8,5 +9,5 @@ export class Product {
   score: number;
   plan: Plan;
   customers?: Franchise[];
-  sales?: string[]; // ! Sales is not implemented yet
+  sales?: Sale[];
 }
