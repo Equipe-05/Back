@@ -1,3 +1,5 @@
+import { Customer } from 'src/customer/entities/customer.entity';
+import { Sale } from 'src/sale/entities/sale.entity';
 import { User } from 'src/user/entities/user.entity';
 
 export class Franchise {
@@ -10,6 +12,6 @@ export class Franchise {
   score: string;
   status: number;
   user?: User;
-  customers?: string[]; // ! Customer is not implemented yet
-  sales?: string[]; // ! Sale is not implemented yet
+  customers?: Customer[];
+  sales?: Sale[];
 }
