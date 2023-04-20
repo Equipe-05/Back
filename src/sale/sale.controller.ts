@@ -6,39 +6,39 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { SaleService } from './sale.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/user/entities/user.entity';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
+import { Role } from '@prisma/client';
+import { isRoleCheck } from 'src/common/helpers/role-check.helper';
 
+@UseGuards(AuthGuard())
+@ApiBearerAuth()
 @ApiTags('sale')
 @Controller('sale')
 export class SaleController {
   constructor(private readonly saleService: SaleService) {}
 
   @Post()
-  create(@Body() createSaleDto: CreateSaleDto) {
-    return this.saleService.create(createSaleDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.saleService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.saleService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSaleDto: UpdateSaleDto) {
-    return this.saleService.update(+id, updateSaleDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.saleService.remove(+id);
+  @ApiOperation({
+    summary: 'Criar uma nova venda',
+    description: 'Criar uma nova venda para um franqueado',
+  })
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async createSale(@Body() payload: CreateSaleDto, @GetUser() user: User) {
+    try {
+      return await this.saleService.createSale(payload);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
   }
 }
