@@ -3,7 +3,41 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, Role } from '@prisma/client';
-import { isRoleCheck } from 'src/common/helpers/role-check.helper';
+import { isRole, isRoleCheck } from 'src/common/helpers/role-check.helper';
+import { GetSalesFilterDto } from './dto/get-sales-filter.dto';
+import { User } from 'src/user/entities/user.entity';
+
+const include = {
+  customer: true,
+  franchise: true,
+  product: true,
+  user: true,
+};
+
+const select = {
+  id: true,
+  description: true,
+  customer: {
+    select: {
+      id: true,
+    },
+  },
+  franchise: {
+    select: {
+      id: true,
+    },
+  },
+  product: {
+    select: {
+      id: true,
+    },
+  },
+  user: {
+    select: {
+      id: true,
+    },
+  },
+};
 
 @Injectable()
 export class SaleService {
@@ -43,6 +77,18 @@ export class SaleService {
     return this.prisma.sale.create({ data });
   }
 
+  async getAllSales(search: GetSalesFilterDto) {
+    const where: Prisma.SaleWhereInput = {};
+
+    if (search?.search)
+      where.description = {
+        contains: search.search,
+        mode: 'insensitive',
+      };
+
+    return this.prisma.sale.findMany({ where, select });
+  }
+
   async getSalesByFranchise(franchiseId: string) {
     return `This action returns all sales of a franchise #${franchiseId}`;
   }
@@ -63,7 +109,38 @@ export class SaleService {
     return `This action returns all sales of a date #${date}`;
   }
 
-  private async getSaleById(id: string) {}
+  async getSaleById(id: string, user: User) {
+    const sale = await this.findSaleById(id);
+
+    if (isRole(user.role, Role.EMPLOYEE, Role.FRANCHISEE)) {
+      if (sale.franchise.userId !== user.ownerId)
+        throw {
+          name: 'UnauthorizedError',
+          message: `You don't have permission to access this sale`,
+        };
+    }
+
+    return sale;
+  }
+
+  private async findSaleById(id: string) {
+    const sale = await this.prisma.sale.findUnique({
+      where: {
+        id,
+      },
+      include,
+    });
+
+    if (!sale)
+      throw {
+        name: 'NotFoundError',
+        message: `Sale with id ${id} not found`,
+      };
+
+    delete sale?.user?.password;
+
+    return sale;
+  }
 
   private async getUserRole(userId: string) {
     const user = await this.prisma.user.findUnique({
