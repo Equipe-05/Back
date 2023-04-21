@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProductModule } from './product/product.module';
 import { FranchiseModule } from './franchise/franchise.module';
 import { CustomerModule } from './customer/customer.module';
+import { SaleModule } from './sale/sale.module';
 
 
 @Module({
@@ -23,6 +24,7 @@ import { CustomerModule } from './customer/customer.module';
     ProductModule,
     FranchiseModule,
     CustomerModule,
+    SaleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

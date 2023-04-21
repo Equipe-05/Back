@@ -41,4 +41,22 @@ export class AuthService {
     this.logger.log(`Generated JWT Token for email ${email}`);
     return { accessToken };
   }
+
+  async signed(userId: string) {
+    const where = { id: userId };
+    const include = { franchise: true };
+    const user = await this.prisma.user.findUnique({ where, include });
+
+    if (!user) {
+      throw {
+        name: 'BadRequestError',
+        message: 'Invalid credentials',
+      };
+    }
+
+    delete user?.password;
+
+    this.logger.verbose(`User ${userId} signed in`);
+    return user;
+  }
 }

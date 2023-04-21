@@ -1,5 +1,6 @@
-import { Franchise } from "src/franchise/entities/franchise.entity";
-import { Product } from "src/product/entities/product.entity";
+import { Franchise } from 'src/franchise/entities/franchise.entity';
+import { Product } from 'src/product/entities/product.entity';
+import { Sale } from 'src/sale/entities/sale.entity';
 
 export class Customer {
   id: string;
@@ -8,6 +9,6 @@ export class Customer {
   cnpj: string;
   phone: string;
   franchises?: Franchise[];
-  sales?: string[]; // ! Sale is not implemented yet
+  sales?: Sale[];
   products?: Product[];
 }

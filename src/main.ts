@@ -20,6 +20,7 @@ async function bootstrap() {
     .addTag('franchise')
     .addTag('product')
     .addTag('customer')
+    .addTag('sale')
     .addTag('server')
 
     .addBearerAuth()

@@ -127,6 +127,7 @@ export class FranchiseService {
       where: { id: userId },
       data: { ownerId: userId },
     });
+
     return this.prisma.franchise.update({ where, data, select });
   }
 

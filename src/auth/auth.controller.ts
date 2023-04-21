@@ -6,14 +6,13 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
+import { User } from 'src/user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { exceptionsFilter } from 'src/common/helpers/exceptions.helper';
-import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/common/decorators/get-user.decorator';
-import { User } from 'src/user/entities/user.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -42,6 +41,6 @@ export class AuthController {
     description: 'Caso o usuário esteja autenticado, retorna o usuário.',
   })
   async signed(@GetUser() user: User) {
-    return user;
+    return await this.authService.signed(user.id);
   }
 }
