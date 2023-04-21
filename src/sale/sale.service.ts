@@ -163,15 +163,10 @@ export class SaleService {
 
   async updateSale(id: string, payload: UpdateSaleDto, user: User) {
     const { description } = payload;
-    const where = { id };
-    const _sale = await this.findSaleById(id);
+    const where: Prisma.SaleWhereUniqueInput = { id };
 
     if (isRole(user.role, Role.FRANCHISEE)) {
-      if (_sale.franchise.userId !== user.ownerId)
-        throw {
-          name: 'UnauthorizedError',
-          message: `You don't have permission to update this sale`,
-        };
+      await this.checkSaleWithUserExists(id, user.id);
     }
 
     const data: Prisma.SaleUpdateInput = {
@@ -283,6 +278,26 @@ export class SaleService {
       throw {
         name: 'NotFoundError',
         message: `Customer with id ${customerId} not found`,
+      };
+  }
+
+  private async checkSaleWithUserExists(saleId: string, ownerId: string) {
+    const _sale = await this.prisma.sale.findUniqueOrThrow({
+      where: {
+        id: saleId,
+      },
+      select: {
+        userId: true,
+        franchiseId: true,
+      },
+    });
+
+    const _franchise = await this.findOneFranchiseByUserId(ownerId);
+
+    if (_sale.franchiseId !== _franchise.id)
+      throw {
+        name: 'UnauthorizedError',
+        message: `You don't have permission to access this sale`,
       };
   }
 }
