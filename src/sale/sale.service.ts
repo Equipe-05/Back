@@ -89,8 +89,29 @@ export class SaleService {
     return this.prisma.sale.findMany({ where, select });
   }
 
-  async getSalesByFranchise(franchiseId: string) {
-    return `This action returns all sales of a franchise #${franchiseId}`;
+  async getSalesByFranchise(franchiseId: string, user: User) {
+    if (isRole(user.role, Role.EMPLOYEE))
+      throw {
+        name: 'UnauthorizedError',
+        message: `You don't have permission to access this sale`,
+      };
+
+    const _franchise = await this.findOneFranchiseByUserId(user.id);
+
+    if (isRole(user.role, Role.FRANCHISEE)) {
+      if (_franchise.id !== franchiseId)
+        throw {
+          name: 'UnauthorizedError',
+          message: `You don't have permission to access this franchise sales`,
+        };
+    }
+
+    return this.prisma.sale.findMany({
+      where: {
+        franchiseId,
+      },
+      select,
+    });
   }
 
   async getSalesByCustomer(customerId: string) {
@@ -140,6 +161,22 @@ export class SaleService {
     delete sale?.user?.password;
 
     return sale;
+  }
+
+  private async findOneFranchiseByUserId(userId: string) {
+    const franchise = await this.prisma.franchise.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    if (!franchise)
+      throw {
+        name: 'NotFoundError',
+        message: `Franchise with user id ${userId} not found`,
+      };
+
+    return franchise;
   }
 
   private async getUserRole(userId: string) {

@@ -44,7 +44,7 @@ export class SaleController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async createSale(@Body() payload: CreateSaleDto, @GetUser() user: User) {
     try {
-      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
+      isRoleCheck(user.role, Role.EMPLOYEE, Role.FRANCHISEE);
       return await this.saleService.createSale(payload);
     } catch (error) {
       exceptionsFilter(error);
@@ -81,6 +81,22 @@ export class SaleController {
   ) {
     try {
       return await this.saleService.getSaleById(id, user);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
+
+  @Get('/franchise/:franchiseId')
+  @ApiOperation({
+    summary: 'Listar todas as vendas de um franqueado',
+    description: 'Listar todas as vendas de um franqueado',
+  })
+  async getSalesByFranchise(
+    @Param('franchiseId', ParseUUIDPipe) franchiseId: string,
+    @GetUser() user: User,
+  ) {
+    try {
+      return await this.saleService.getSalesByFranchise(franchiseId, user);
     } catch (error) {
       exceptionsFilter(error);
     }
