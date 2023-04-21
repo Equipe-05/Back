@@ -3,7 +3,11 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, Role } from '@prisma/client';
-import { isRole, isRoleCheck } from 'src/common/helpers/role-check.helper';
+import {
+  isNotRoleCheck,
+  isRole,
+  isRoleCheck,
+} from 'src/common/helpers/role-check.helper';
 import { GetSalesFilterDto } from './dto/get-sales-filter.dto';
 import { User } from 'src/user/entities/user.entity';
 
@@ -77,7 +81,7 @@ export class SaleService {
     return this.prisma.sale.create({ data });
   }
 
-  async getAllSales(search: GetSalesFilterDto) {
+  async getAllSales(search: GetSalesFilterDto, user: User) {
     const where: Prisma.SaleWhereInput = {};
 
     if (search?.search)
@@ -86,16 +90,17 @@ export class SaleService {
         mode: 'insensitive',
       };
 
+    if (isRole(user.role, Role.FRANCHISEE)) {
+      const _franchise = await this.findOneFranchiseByUserId(user.id);
+      where.franchiseId = _franchise.id;
+    }
+
     return this.prisma.sale.findMany({ where, select });
   }
 
   async getSalesByFranchise(franchiseId: string, user: User) {
-    if (isRole(user.role, Role.EMPLOYEE))
-      throw {
-        name: 'UnauthorizedError',
-        message: `You don't have permission to access this sale`,
-      };
-
+    isNotRoleCheck(user.role, Role.EMPLOYEE);
+    const where = { franchiseId };
     const _franchise = await this.findOneFranchiseByUserId(user.id);
 
     if (isRole(user.role, Role.FRANCHISEE)) {
@@ -106,28 +111,40 @@ export class SaleService {
         };
     }
 
-    return this.prisma.sale.findMany({
-      where: {
-        franchiseId,
-      },
-      select,
-    });
+    return this.prisma.sale.findMany({ where, select });
   }
 
-  async getSalesByCustomer(customerId: string) {
-    return `This action returns all sales of a customer #${customerId}`;
+  async getSalesByCustomer(customerId: string, user: User) {
+    const where: Prisma.SaleWhereInput = { customerId };
+
+    if (isRole(user.role, Role.EMPLOYEE, Role.FRANCHISEE)) {
+      const _franchise = await this.findOneFranchiseByUserId(user.ownerId);
+      where.franchiseId = _franchise.id;
+    }
+
+    return this.prisma.sale.findMany({ where, select });
   }
 
-  async getSalesByUser(userId: string) {
-    return `This action returns all sales of a user #${userId}`;
+  async getSalesByUser(userId: string, _user: User) {
+    const where: Prisma.SaleWhereInput = { userId };
+
+    if (isRole(_user.role, Role.EMPLOYEE, Role.FRANCHISEE)) {
+      userId === _user.ownerId ? null : (where.userId = '');
+    }
+
+    return this.prisma.sale.findMany({ where, select });
   }
 
-  async getSalesByProduct(productId: string) {
-    return `This action returns all sales of a product #${productId}`;
-  }
+  async getSalesByProduct(productId: string, filter: GetSalesFilterDto) {
+    const where: Prisma.SaleWhereInput = { productId };
 
-  async getSalesByDate(date: string) {
-    return `This action returns all sales of a date #${date}`;
+    if (filter?.search)
+      where.description = {
+        contains: filter.search,
+        mode: 'insensitive',
+      };
+
+    return this.prisma.sale.findMany({ where, select });
   }
 
   async getSaleById(id: string, user: User) {
@@ -142,6 +159,35 @@ export class SaleService {
     }
 
     return sale;
+  }
+
+  async updateSale(id: string, payload: UpdateSaleDto, user: User) {
+    const { description } = payload;
+    const where = { id };
+    const _sale = await this.findSaleById(id);
+
+    if (isRole(user.role, Role.FRANCHISEE)) {
+      if (_sale.franchise.userId !== user.ownerId)
+        throw {
+          name: 'UnauthorizedError',
+          message: `You don't have permission to update this sale`,
+        };
+    }
+
+    const data: Prisma.SaleUpdateInput = {
+      description,
+    };
+
+    return this.prisma.sale.update({ where, data });
+  }
+
+  async deleteSale(id: string) {
+    const where = { id };
+    const data: Prisma.SaleUpdateInput = {
+      deletedAt: new Date(),
+    };
+
+    await this.prisma.sale.update({ where, data });
   }
 
   private async findSaleById(id: string) {

@@ -87,7 +87,7 @@ export class UserService {
   }
 
   async getUserById(id: string) {
-    const user = await this.findOneById(id);
+    const user = await this.findOneByIdWithFranchise(id);
     delete user?.password;
 
     return user;
@@ -142,6 +142,26 @@ export class UserService {
   private async findOneById(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
+      include: {
+        franchise: true,
+      },
+    });
+
+    if (!user)
+      throw {
+        name: 'NotFoundError',
+        message: `User with id ${id} not found`,
+      };
+
+    return user;
+  }
+
+  private async findOneByIdWithFranchise(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        franchise: true,
+      },
     });
 
     if (!user)
