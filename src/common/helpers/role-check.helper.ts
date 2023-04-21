@@ -13,7 +13,7 @@ export function isRoleCheck(role: Role, ...args: Role[]) {
 }
 
 export function isNotRoleCheck(userRole: Role, role: Role) {
-  userRole !== role && throwRoleException([role]);
+  userRole === role && throwNotRoleException(role);
 }
 
 function throwRoleException(args: Role[]) {
@@ -22,5 +22,12 @@ function throwRoleException(args: Role[]) {
     message: `Permissão negada. Você precisa ser um ${args.join(
       ' ou ',
     )} para acessar este recurso.`,
+  };
+}
+
+function throwNotRoleException(role: Role) {
+  throw {
+    name: 'UnauthorizedError',
+    message: `Permissão negada. Um ${role} não tem acesso este recurso.`,
   };
 }
