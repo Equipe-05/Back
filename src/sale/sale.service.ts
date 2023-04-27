@@ -101,9 +101,9 @@ export class SaleService {
   async getSalesByFranchise(franchiseId: string, user: User) {
     isNotRoleCheck(user.role, Role.EMPLOYEE);
     const where = { franchiseId };
-    const _franchise = await this.findOneFranchiseByUserId(user.id);
 
     if (isRole(user.role, Role.FRANCHISEE)) {
+      const _franchise = await this.findOneFranchiseByUserId(user.id);
       if (_franchise.id !== franchiseId)
         throw {
           name: 'UnauthorizedError',
