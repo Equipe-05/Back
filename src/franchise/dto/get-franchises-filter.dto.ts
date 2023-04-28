@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsIn, IsOptional, Max, Min } from 'class-validator';
+import { ScoreOrder } from 'src/common/types/types';
 
 export class GetFranchiseFilterDto {
   @IsOptional()
@@ -24,6 +25,17 @@ export class GetFranchiseFilterDto {
     required: false,
   })
   readonly maxscore?: number;
+
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  @Transform(({ value }) => value.toLowerCase())
+  @ApiProperty({
+    description:
+      'Ordenar por score da franquia. "ASC" ou "DESC", de forma crescente ou decrescente',
+    enum: ['ASC', 'DESC'],
+    required: false,
+  })
+  readonly ordered?: ScoreOrder;
 
   @IsOptional()
   @ApiProperty({

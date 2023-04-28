@@ -120,6 +120,24 @@ export class FranchiseController {
     }
   }
 
+  @Patch(':id/score')
+  @ApiOperation({
+    summary: 'Atualizar a pontuação de uma franquia',
+    description:
+      'Atualizar a pontuação de uma franquia da rede de franquias, a pontuação é calculada com nos scores dos produtos vendidos pela franquia',
+  })
+  async updateFranchiseScore(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser() user: User,
+  ) {
+    try {
+      isRoleCheck(user.role, Role.OPERATOR, Role.MANAGER);
+      return await this.franchiseService.updateFranchiseScore(id);
+    } catch (error) {
+      exceptionsFilter(error);
+    }
+  }
+
   @Delete(':id')
   @ApiOperation({
     summary: 'Remover uma franquia',

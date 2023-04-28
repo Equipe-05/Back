@@ -78,8 +78,8 @@ export class CustomerController {
 
   @Get()
   @ApiOperation({
-    summary: 'Filtro de busca de clientes',
-    description: 'Filtro de busca de clientes',
+    summary: 'Listar todos os clientes',
+    description: 'Listar todos os clientes da rede de franquias',
   })
   async findAllCustomers(
     @Query(ValidationPipe) payload: GetCustomerFilterDto,

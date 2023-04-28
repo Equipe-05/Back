@@ -78,7 +78,10 @@ export class SaleService {
       },
     };
 
-    return this.prisma.sale.create({ data });
+    const createdSale = await this.prisma.sale.create({ data });
+    this.updateFranchiseScore(franchiseId);
+
+    return createdSale;
   }
 
   async getAllSales(search: GetSalesFilterDto, user: User) {
@@ -299,5 +302,50 @@ export class SaleService {
         name: 'UnauthorizedError',
         message: `You don't have permission to access this sale`,
       };
+  }
+
+  private async updateFranchiseScore(id: string) {
+    const _franchise = await this.prisma.franchise.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        sales: {
+          select: {
+            productId: true,
+          },
+        },
+      },
+    });
+
+    if (!_franchise) return;
+
+    const _products = _franchise?.sales?.map((sale) => sale.productId);
+    const _scores = _products?.map((id) => this.getScoreByProductId(id));
+    const scores = await Promise.all(_scores);
+    const score = scores?.reduce((acc, curr) => acc + curr, 0);
+    const where = { id };
+    const data: Prisma.FranchiseUpdateInput = {
+      score,
+    };
+
+    await this.prisma.franchise.update({ where, data });
+  }
+
+  private async getScoreByProductId(id: string) {
+    const _product = await this.prisma.product.findUnique({
+      where: { id },
+      select: {
+        score: true,
+      },
+    });
+
+    if (!_product)
+      throw {
+        name: `NotFoundError`,
+        message: `Product with id ${id} not found`,
+      };
+
+    return _product.score;
   }
 }
