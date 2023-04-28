@@ -47,9 +47,8 @@ export class SaleController {
     description: 'Criar uma nova venda para um franqueado',
   })
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async createSale(@Body() payload: CreateSaleDto, @GetUser() user: User) {
+  async createSale(@Body() payload: CreateSaleDto) {
     try {
-      isRoleCheck(user.role, Role.EMPLOYEE, Role.FRANCHISEE);
       return await this.saleService.createSale(payload);
     } catch (error) {
       exceptionsFilter(error);
