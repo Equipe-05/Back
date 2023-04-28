@@ -19,6 +19,11 @@ const select = {
       name: true,
     },
   },
+  _count: {
+    select: {
+      sales: true,
+    },
+  },
   createdAt: true,
   deletedAt: true,
 };
@@ -136,6 +141,22 @@ export class FranchiseService {
     return this.prisma.franchise.update({ where, data, select });
   }
 
+  async updateFranchiseScore(id: string) {
+    const _franchise = await this.findOneByIdWithSales(id);
+    const _sales = _franchise.sales;
+    const _scores = _sales.map(async (sale) =>
+      this.getScoreByProductId(sale.productId),
+    );
+    const scores = await Promise.all(_scores);
+    const score = scores.reduce((acc, cur) => acc + cur, 0);
+    const where = { id };
+    const data: Prisma.FranchiseUpdateInput = {
+      score,
+    };
+
+    return this.prisma.franchise.update({ where, data, select });
+  }
+
   async endFranchise(id: string) {
     await this.findOneById(id);
     const where = { id };
@@ -166,6 +187,11 @@ export class FranchiseService {
       where: { id },
       include: {
         user: true,
+        _count: {
+          select: {
+            sales: true,
+          },
+        },
       },
     });
 
@@ -180,6 +206,39 @@ export class FranchiseService {
     return _franchise;
   }
 
+  private async findOneByIdWithSales(id: string) {
+    const _franchise = await this.prisma.franchise.findUnique({
+      where: { id },
+      include: {
+        sales: true,
+      },
+    });
+
+    if (!_franchise)
+      throw {
+        name: `NotFoundError`,
+        message: `Franchise with id ${id} not found`,
+      };
+
+    return _franchise;
+  }
+
+  private async getScoreByProductId(id: string) {
+    const _product = await this.prisma.product.findUnique({
+      where: { id },
+      select: {
+        score: true,
+      },
+    });
+
+    if (!_product)
+      throw {
+        name: `NotFoundError`,
+        message: `Product with id ${id} not found`,
+      };
+
+    return _product.score;
+  }
   private async getUserRoleById(id: string): Promise<Role> {
     const _user = await this.prisma.user.findUnique({
       where: { id },
