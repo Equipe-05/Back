@@ -31,7 +31,7 @@ export class GetFranchiseFilterDto {
   @Transform(({ value }) => value.toLowerCase())
   @ApiProperty({
     description:
-      'Ordenar por score da franquia. ASC ou DES, de forma crescente ou decrescente',
+      'Ordenar por score da franquia. "ASC" ou "DESC", de forma crescente ou decrescente',
     enum: ['ASC', 'DESC'],
     required: false,
   })
