@@ -40,8 +40,9 @@ export class FranchiseService {
   }
 
   async getAllFranchises(payload: GetFranchiseFilterDto) {
-    const { minscore, maxscore, search, deleted } = payload;
+    const { minscore, maxscore, ordered, search, deleted } = payload;
     const where: Prisma.FranchiseWhereInput = {};
+    const orderBy: Prisma.FranchiseOrderByWithAggregationInput = {};
 
     if (minscore && maxscore) {
       where.score = {
@@ -56,6 +57,10 @@ export class FranchiseService {
       where.score = {
         lte: maxscore,
       };
+    }
+
+    if (ordered) {
+      orderBy.score = ordered;
     }
 
     if (search) {
@@ -86,7 +91,7 @@ export class FranchiseService {
         : (where.deletedAt = null);
     }
 
-    return this.prisma.franchise.findMany({ where, select });
+    return this.prisma.franchise.findMany({ where, orderBy, select });
   }
 
   async getMyFranchise(id: string) {
