@@ -28,6 +28,12 @@ enum Plan {
   SALAOVIP
 }
 
+enum TicketStatus {
+  OPEN
+  CLOSED
+  IN_PROGRESS
+}
+
 model User {
   id       String @id @default(uuid())
   name     String
@@ -121,13 +127,16 @@ model Sale {
   @@map("sale")
 }
 
-// TODO: add Ticket model to track the status support tickets
-// ! Ticket model
-// * id: String
-// * description: String
-// * status: String
-// * operator: User?
-// * franchise: Franchise
-// * createdAt: DateTime
-// * updatedAt: DateTime
-// * deletedAt: DateTime
+model Ticket {
+  id          String       @id @default(uuid())
+  description String
+  status      TicketStatus
+  operatorId  String?
+  franchiseId String
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("ticket")
+}
