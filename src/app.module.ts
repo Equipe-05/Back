@@ -10,6 +10,7 @@ import { ProductModule } from './product/product.module';
 import { FranchiseModule } from './franchise/franchise.module';
 import { CustomerModule } from './customer/customer.module';
 import { SaleModule } from './sale/sale.module';
+import { TicketModule } from './ticket/ticket.module';
 
 
 @Module({
@@ -25,6 +26,7 @@ import { SaleModule } from './sale/sale.module';
     FranchiseModule,
     CustomerModule,
     SaleModule,
+    TicketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
