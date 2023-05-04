@@ -3,6 +3,7 @@ import { Franchise } from 'src/franchise/entities/franchise.entity';
 import { Sale } from 'src/sale/entities/sale.entity';
 
 export class User {
+  [x: string]: any;
   id: string;
   name: string;
   email: string;
